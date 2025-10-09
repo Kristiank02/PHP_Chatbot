@@ -1,7 +1,7 @@
 # PHP Chatbot
-# Arkitektur (lærerik og forståelig)
+## Arkitektur
 
-## Flyt
+### Flyt
 	1.	Bruker skriver spørsmål i UI (HTML/JS).
 	2.	api/chatbot.php tar imot tekst → sender til BotEngine (PHP).
 	3.	BotEngine gjør:
