@@ -69,7 +69,7 @@ PHP_Chatbot/
 - **Inneholder:**
     - PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
     - utf8mb4 for Unicode
-- 📚 **Dokumentasjon:**
+- **Dokumentasjon:**
     - [PHP PDO – dokumentasjon](https://www.php.net/manual/en/book.pdo.php)
     - [Prepared statements](https://www.php.net/manual/en/pdo.prepared-statements.php)
 
@@ -116,7 +116,7 @@ ORDER BY score DESC
 LIMIT 1;
 ```
 
-- 📚 **Dokumentasjon:**
+- **Dokumentasjon:**
     - [MySQL Fulltext Search](https://dev.mysql.com/doc/refman/8.0/en/fulltext-search.html)
 
 ---
@@ -128,7 +128,7 @@ LIMIT 1;
     - Sammenligner brukerens tekst med kjente mønstre
     - Bruker similar_text() for korte ord, levenshtein() for lengre
     - Treffer hvis prosent ≥ 40
-- 📚 **Dokumentasjon:**
+- **Dokumentasjon:**
     - [similar_text()](https://www.php.net/manual/en/function.similar-text.php)
     - [levenshtein()](https://www.php.net/manual/en/function.levenshtein.php)
 
@@ -209,10 +209,10 @@ VALUES ('what is RPE?', 'RPE står for Rate of Perceived Exertion...');
 | 4 | RuleMatcher.php | Enkle regler (keywords → svar) | 🟡 Middels |
 | 5 | FullTextSearch.php | Implementer MATCH ... AGAINST | 🟡 Middels |
 | 6 | FuzzyMatcher.php | Likhetssjekk for fritekst | 🟡 Middels |
-| 7 | BotEngine.php | Sett sammen hele pipeline | 🔵 Avansert |
+| 7 | BotEngine.php | Sett sammen hele pipeline | 🔴 Avansert |
 | 8 | chatbot.php | API som kaller BotEngine | 🟢 Lett |
 | 9 | index.html | UI + fetch() + JSON-visning | 🟢 Lett |
-| 10 | admin/* (valgfritt) | CRUD og visning av samtaler | 🔵 Avansert |
+| 10 | admin/* (valgfritt) | CRUD og visning av samtaler | 🔴 Avansert |
 
 ---
 
