@@ -191,12 +191,6 @@ VALUES ('what is RPE?', 'RPE står for Rate of Perceived Exertion...');
 | **chatbot.php** | **index.html** | → | JSON (svar) |
 | **Admin (valgfritt)** | **FullTextSearch** | ↔ | CRUD-operasjoner |
 
-**Tips til diagrammet ditt:**
-
-- Bruk piler med navn på dataflyt (POST, JSON, SQL, String)
-- Marker tydelig hvilke er **toveis (↔)** (f.eks. BotEngine ↔ FullTextSearch)
-- Bruk ulike farger for: frontend (blå), backend (oransje), database (grønn)
-
 ---
 
 ## **4) Rekkefølge på implementasjon (med vanskelighetsgrad)**
