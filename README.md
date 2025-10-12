@@ -253,13 +253,10 @@ VALUES ('what is RPE?', 'RPE står for Rate of Perceived Exertion...');
 
 ---
 
-## **8) Bonusforslag (hvis tid)**
+## **8) Ekstrfunksjonalitet (hvis tid)**
 
 - Logg “ubestemte” spørsmål i egen tabell → vis i admin-siden
 - Lag REST-endepunkt /api/conversations for oversikt
 - Legg til cache med $_SESSION eller Redis (Docker)
 - Implementer rate limiting (f.eks. maks 10 requests/min per IP)
 
----
-
-Vil du at jeg nå lager en **README.md**-fil basert på denne norske planen — klar til bruk i prosjektmappen din, med ferdig formatterte seksjoner og kodemaler (PDO, schema.sql og første BotEngine-mal)?
