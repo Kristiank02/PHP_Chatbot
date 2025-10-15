@@ -1,14 +1,7 @@
 <?php
 declare(strict_types=1);
 
-/**
- * Minimal PDO-tilkobling for MariaDB/MySQL.
- * Bruk: $pdo = DB::pdo();
- *
- * Lesing av miljøvariabler:
- * - DB_HOST, DB_PORT, DB_DATABASE, DB_USERNAME, DB_PASSWORD
- *   (I compose har du satt DB_PORT til verdien av DB_PORT_APP, så koden leser DB_PORT først.)
- */
+// PDO-connection
 final class DB
 {
     private static ?PDO $pdo = null;
@@ -19,9 +12,9 @@ final class DB
             return self::$pdo;
         }
 
-        // Miljøvariabler injiseres av docker-compose (web → environment)
+        // Credentials from environment with fallback values
         $host = getenv('DB_HOST') ?: 'db';
-        $port = (int) (getenv('DB_PORT') ?: 3306); // compose eksponerer DB_PORT=DB_PORT_APP (=3306)
+        $port = (int) (getenv('DB_PORT') ?: 3306);
         $db   = getenv('DB_DATABASE') ?: 'chatbot';
         $user = getenv('DB_USERNAME') ?: 'chatbot_user';
         $pass = getenv('DB_PASSWORD') ?: '';
@@ -29,16 +22,16 @@ final class DB
         $dsn = "mysql:host={$host};port={$port};dbname={$db};charset=utf8mb4";
 
         $options = [
-            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION, // tydelige feil
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,       // ryddige resultater
-            PDO::ATTR_EMULATE_PREPARES   => false,                  // ekte prepared statements
+            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION, // Clear errors
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,       // Clean results
+            PDO::ATTR_EMULATE_PREPARES   => false,                  // Actutal prepared statements (SQL-injection defense)
         ];
 
-        // Liten retry: DB kan bruke noen sekunder ved kald start
+        // Retry if database isn't running yet
         $attempts = 0;
         $max      = 10;
-        $delayUs  = 300_000; // 300 ms
-
+        $delayUs  = 1_000_000; 
+        
         while (true) {
             try {
                 self::$pdo = new PDO($dsn, $user, $pass, $options);
