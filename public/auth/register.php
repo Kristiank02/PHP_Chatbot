@@ -21,9 +21,9 @@ if ($_server['REQUEST_METHOD'] === 'POST') {
         $password = $POST['PASSWORD'] ?? '';
         $oldEmail = $email;
 
-        // Uses auth.php logic to validate inputs and hash password
-        $userId = Auth::register($email, $password);
-        Aut::loginSession($userId);
+        // Uses auth.php logic to log in user once register is completed
+        $userId = auth::register($email, $password);
+        auth::loginSession($userId);
 
         // Redirect to homepage for "logged in" users
         header('Redirect/location/placeholder');
@@ -51,16 +51,14 @@ if ($_server['REQUEST_METHOD'] === 'POST') {
         <?php endforeach; ?>
     </div>
 <?php endif; ?>
-<form autocomplete="on" method="post" action="">
+<form  method="post" action="">
     <label>
         E-post 
-        <input type="email" name="email" placeholder="epost@eksempel.no" required value="<?= htmlspecialchars($oldEmail, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
+        <input type="email" name="email" autofocus="autofocus" autocomplete="on" placeholder="epost@eksempel.no" required value="<?= htmlspecialchars($oldEmail, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
     </label>
-</form>
-<form method="post" action="">
     <label>
-        Passord (minimum 6 tegn)
-        <input type="password" name="password" required minlength="6">
+        Passord (minimum 6 tegn hvorav ett tall)
+        <input type="password" name="password" required minlength="6" pattern="[A-za-z0-9]+" required>
     </label>
     <button type="submit">Registrer</button>
 </form>
