@@ -15,15 +15,15 @@ $errors = [];       // Collects error messages
 $oldEmail = '';     // Field remains filled out even after errors
 
 // Checks request and runs if POST
-if ($_server['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
-        $email = $POST['email'] ?? '';
-        $password = $POST['PASSWORD'] ?? '';
+        $email = $_POST['email'] ?? '';
+        $password = $_POST['password'] ?? '';
         $oldEmail = $email;
 
         // Uses auth.php logic to log in user once register is completed
         $userId = auth::register($email, $password);
-        auth::loginSession($userId);
+       // auth::loginSession($userId);
 
         // Redirect to homepage for "logged in" users
         header('Redirect/location/placeholder');

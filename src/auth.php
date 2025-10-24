@@ -12,9 +12,9 @@ final class auth
         }
         // Validates email format
         if (strlen($password) < 6) {
-            $error = "Password must be at least 6 characters long.";
+            throw new InvalidArgumentException('Password must be at least 6 characters long.');
         } elseif (!preg_match('/[A-Za-z]/', $password) || !preg_match('/[0-9]/', $password)) {
-            $error = "Password must contain both letters and numbers.";
+            throw new InvalidArgumentException('Password must contain both letters and numbers.');
         } 
 
         // Database connection
