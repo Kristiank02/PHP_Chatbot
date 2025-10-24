@@ -36,8 +36,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['uid'] = (int)$user['id'];
 
         // Redirect to homepage for "logged in" users
-        header('Redirect/location/placeholder');
-        exit;
+        header('Location: http://localhost/PHP_Chatbot/public/index.html');
+        exit();
     } catch (Throwable $exception) {
         $errors[] = $exception->getMessage();   // Collects exceptions and adds to list of errors
     }
