@@ -6,11 +6,11 @@ final class auth
     public static function register(string $email, string $password): int
     {
         $email = trim($email);
-
+        // Validates email format
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             throw new InvalidArgumentException('Ugyldig e-postadresse');
         }
-        // Validates email format
+        // Validates password format
         if (strlen($password) < 6) {
             throw new InvalidArgumentException('Password must be at least 6 characters long.');
         } elseif (!preg_match('/[A-Za-z]/', $password) || !preg_match('/[0-9]/', $password)) {
