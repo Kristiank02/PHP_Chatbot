@@ -2,14 +2,13 @@
 declare(strict_types=1);
 
 // Load dependencies
-require_once __DIR - '/../../src/auth.php';
-require_once __DIR - '/../../src/db.php';
+require_once __DIR__ . '/../../src/auth.php';
+require_once __DIR__ . '/../../src/db.php';
 
-Auth::requireLogin();
-$userId = Auth::currentUserId();
+auth::requireLogin();
+$userId = auth::currentUserId();
 
-
-$conversationId = (int)($GET['id'] ?? 0);
+$conversationId = (int)($_GET['id'] ?? 0);
 
 
 $pdo = db::pdo();
