@@ -1,4 +1,5 @@
 <?php
+// Helper class to prepare and insert new conversations in db
 Class Conversations {
     public static function create(int $userId): int {
         $pdo = DB::pdo();

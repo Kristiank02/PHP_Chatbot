@@ -37,28 +37,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="no">
 <head>
   <meta charset="utf-8">
-  <title>Registrer</title>
+  <title>Register - Weightlifting Assistant</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>body{font-family:system-ui,sans-serif;margin:2rem}form{max-width:420px;display:grid;gap:.75rem}input{padding:.6rem}</style>
+  <link rel="stylesheet" href="../assets/css/main.css">
 </head>
 <body>
-  <h1>Registrer ny bruker</h1>
+  <div class="auth-page">
+    <div class="auth-container">
+      <div class="auth-header">
+        <h1>Register</h1>
+        <p>Create an account for Weightlifting Assistant</p>
+      </div>
 
-<?php if ($errors): ?>
-    <div style="color:#b00020">
-        <?php foreach ($errors as $message): ?>
+      <?php if ($errors): ?>
+        <div class="auth-errors">
+          <?php foreach ($errors as $message): ?>
             <p><?= htmlspecialchars($message, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p>
-        <?php endforeach; ?>
+          <?php endforeach; ?>
+        </div>
+      <?php endif; ?>
+
+      <form method="post" action="" class="auth-form">
+        <label>
+          Email
+          <input type="email" name="email" autofocus="autofocus" autocomplete="on" placeholder="email@example.com" required value="<?= htmlspecialchars($oldEmail, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
+        </label>
+        <label>
+          Password
+          <input type="password" name="password" required minlength="6" pattern="[A-za-z0-9]+" required>
+          <span class="password-hint">Minimum 6 characters including at least one number</span>
+        </label>
+        <button type="submit" class="btn btn--primary btn--full">Register</button>
+      </form>
+
+      <div class="auth-footer">
+        <p>Already have an account? <a href="login.php">Login here</a></p>
+      </div>
     </div>
-<?php endif; ?>
-<form  method="post" action="">
-    <label>
-        E-post 
-        <input type="email" name="email" autofocus="autofocus" autocomplete="on" placeholder="epost@eksempel.no" required value="<?= htmlspecialchars($oldEmail, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
-    </label>
-    <label>
-        Passord (minimum 6 tegn hvorav ett tall)
-        <input type="password" name="password" required minlength="6" pattern="[A-za-z0-9]+" required>
-    </label>
-    <button type="submit">Registrer</button>
-</form>
+  </div>
+</body>
+</html>

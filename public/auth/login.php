@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$user || !password_verify($password, (string)$user['password_hash'])) {
-            throw new RuntimeException('Feil e-post eller passord');
+            throw new RuntimeException('Invalid email or password');
         }
 
         // Stores logged in user id in session
@@ -47,30 +47,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="no">
 <head>
   <meta charset="utf-8">
-  <title>Logg inn</title>
+  <title>Login - Weightlifting Assistant</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>body{font-family:system-ui,sans-serif;margin:2rem}form{max-width:420px;display:grid;gap:.75rem}input{padding:.6rem}</style>
+  <link rel="stylesheet" href="../assets/css/main.css">
 </head>
 <body>
-  <h1>Logg inn</h1>
+  <div class="auth-page">
+    <div class="auth-container">
+      <div class="auth-header">
+        <h1>Login</h1>
+        <p>Welcome back to Weightlifting Assistant</p>
+      </div>
 
-<?php if ($errors): ?>
-    <div style="color:#b00020">
-        <?php foreach ($errors as $message): ?>
+      <?php if ($errors): ?>
+        <div class="auth-errors">
+          <?php foreach ($errors as $message): ?>
             <p><?= htmlspecialchars($message, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p>
-        <?php endforeach; ?>
+          <?php endforeach; ?>
+        </div>
+      <?php endif; ?>
+
+      <form method="post" action="" class="auth-form">
+        <label>
+          Email
+          <input type="email" name="email" autofocus="autofocus" autocomplete="on" placeholder="email@example.com" required value="<?= htmlspecialchars($oldEmail, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
+        </label>
+        <label>
+          Password
+          <input type="password" name="password" required>
+        </label>
+        <button type="submit" class="btn btn--primary btn--full">Login</button>
+      </form>
+
+      <div class="auth-footer">
+        <p>Don't have an account? <a href="register.php">Register here</a></p>
+      </div>
     </div>
-<?php endif; ?>
-<form method="post" action="">
-    <label>
-        E-post
-        <input type="email" name="email" autofocus="autofocus" autocomplete="on" placeholder="epost@eksempel.no" required value="<?= htmlspecialchars($oldEmail, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
-    </label>
-    <label>
-        Passord
-        <input type="password" name="password" required>
-    </label>
-    <button type="submit">Logg inn</button>
-</form>
+  </div>
 </body>
 </html>

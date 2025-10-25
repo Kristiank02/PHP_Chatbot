@@ -8,14 +8,14 @@ final class auth
         $email = trim($email);
         // Validates email format
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            throw new InvalidArgumentException('Ugyldig e-postadresse');
+            throw new InvalidArgumentException('Invalid email address');
         }
         // Validates password format
         if (strlen($password) < 6) {
-            throw new InvalidArgumentException('Password must be at least 6 characters long.');
+            throw new InvalidArgumentException('Password must be at least 6 characters long');
         } elseif (!preg_match('/[A-Za-z]/', $password) || !preg_match('/[0-9]/', $password)) {
-            throw new InvalidArgumentException('Password must contain both letters and numbers.');
-        } 
+            throw new InvalidArgumentException('Password must contain both letters and numbers');
+        }
 
         // Database connection
         $pdo = db::pdo();
@@ -24,7 +24,7 @@ final class auth
         $stmt = $pdo->prepare('SELECT id FROM users WHERE email = ?');
         $stmt->execute([$email]);
         if ($stmt->fetch()) {
-            throw new RuntimeException('E-post er allerede i bruk');
+            throw new RuntimeException('Email is already in use');
         }
 
         // Hashing passwords to prevent password theft in case of compromised database

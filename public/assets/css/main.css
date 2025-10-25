@@ -1,0 +1,23 @@
+/* ============================================
+   MAIN STYLESHEET
+   PHP Chatbot - Retro Terminal Theme
+   ============================================ */
+
+/* Base Styles */
+@import 'base/variables.css';
+@import 'base/reset.css';
+@import 'base/global.css';
+@import 'base/typography.css';
+
+/* Components */
+@import 'components/buttons.css';
+@import 'components/forms.css';
+@import 'components/alerts.css';
+@import 'components/chat.css';
+
+/* Layout */
+@import 'layout/page.css';
+@import 'layout/auth.css';
+
+/* Utilities */
+@import 'utilities/helpers.css';
