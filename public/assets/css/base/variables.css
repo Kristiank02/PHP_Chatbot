@@ -1,0 +1,81 @@
+/* ============================================
+   CSS CUSTOM PROPERTIES - DESIGN TOKENS
+   Retro Terminal Theme
+   ============================================ */
+
+:root {
+  /* Colors - Background */
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #0f1419;
+  --bg-tertiary: #1a1f28;
+  --bg-gradient: linear-gradient(135deg, #0a0e14 0%, #1a1a1a 100%);
+
+  /* Colors - Text */
+  --text-primary: #33ff88;
+  --text-muted: #669966;
+  --text-secondary: #99cc99;
+
+  /* Colors - Accent */
+  --accent-primary: #33ff88;
+  --accent-secondary: #ffaa33;
+  --accent-danger: #ff6b6b;
+  --accent-info: #5599ff;
+
+  /* Colors - UI */
+  --border-color: #2a3a2a;
+  --border-accent: #2a4a2a;
+
+  /* Spacing */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 24px;
+  --space-2xl: 32px;
+
+  /* Border Radius */
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 8px;
+  --radius-pill: 12px;
+
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4);
+  --shadow-glow: 0 0 12px rgba(51, 255, 136, 0.2);
+  --shadow-glow-strong: 0 0 12px rgba(51, 255, 136, 0.3);
+
+  /* Typography */
+  --font-mono: 'Courier New', 'Courier', Consolas, monospace;
+  --font-system: system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  --font-size-xs: 11px;
+  --font-size-sm: 12px;
+  --font-size-md: 13px;
+  --font-size-base: 14px;
+  --font-size-lg: 15px;
+  --font-size-xl: 18px;
+  --font-size-2xl: 24px;
+
+  --line-height-tight: 1.4;
+  --line-height-base: 1.5;
+  --line-height-relaxed: 1.6;
+
+  /* Effects */
+  --text-shadow-glow: 0 0 2px rgba(51, 255, 136, 0.3);
+  --text-shadow-glow-strong: 0 0 4px rgba(51, 255, 136, 0.5);
+
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-base: 0.2s ease;
+  --transition-slow: 0.3s ease;
+
+  /* Z-index layers */
+  --z-base: 1;
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-overlay: 300;
+  --z-modal: 400;
+  --z-scanline: 9999;
+}
