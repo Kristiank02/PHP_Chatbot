@@ -38,6 +38,21 @@ final class auth
         return (int)$pdo->lastInsertId(); 
     }
 
+    // Security function to redirect non-logged-in users to login page
+    public static function requireLogin(): void
+    {
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            session_start();
+        }
+
+        if (empty($_SESSION['uid'])) {
+            $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'] ?? '/';
+
+            header('Location: /auth/login.php');
+            exit;
+        }
+    }
+
     // Check which user is logged in
     public static function currentUserId(): ?int
     {
