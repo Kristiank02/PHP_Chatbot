@@ -1,20 +1,27 @@
 <?php
 declare(strict_types=1);
 
+require_once __DIR__ . '/Validator.php';
+
 final class auth
 {
     public static function register(string $email, string $password): int
     {
         $email = trim($email);
-        // Validates email format
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $validator = new Validator();
+
+        // Validates email format using Validator class
+        $emailResult = $validator->validateEmail($email);
+        if (strpos($emailResult, 'Invalid') !== false) {
             throw new InvalidArgumentException('Invalid email address');
         }
-        // Validates password format
-        if (strlen($password) < 6) {
-            throw new InvalidArgumentException('Password must be at least 6 characters long');
-        } elseif (!preg_match('/[A-Za-z]/', $password) || !preg_match('/[0-9]/', $password)) {
-            throw new InvalidArgumentException('Password must contain both letters and numbers');
+
+        // Validates password format using Validator class
+        $passwordResult = $validator->validatePassword($password);
+        if (strpos($passwordResult, 'Invalid') !== false) {
+            // Extract error message from result
+            $errorMsg = strip_tags(substr($passwordResult, strpos($passwordResult, 'Error:')));
+            throw new InvalidArgumentException($errorMsg);
         }
 
         // Database connection

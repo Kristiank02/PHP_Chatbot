@@ -64,8 +64,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </label>
         <label>
           Password
-          <input type="password" name="password" required minlength="6" pattern="[A-za-z0-9]+" required>
-          <span class="password-hint">Minimum 6 characters including at least one number</span>
+          <input type="password" name="password" required minlength="9">
+          <span class="password-hint">Minimum 9 characters: one uppercase, two numbers, one special character</span>
         </label>
         <button type="submit" class="btn btn--primary btn--full">Register</button>
       </form>
