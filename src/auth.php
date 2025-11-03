@@ -55,7 +55,7 @@ final class auth
         if (empty($_SESSION['uid'])) {
             $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'] ?? '/';
 
-            header('Location: /auth/login.php');
+            header('Location: /PHP_Chatbot/public/auth/login.php');
             exit;
         }
     }
