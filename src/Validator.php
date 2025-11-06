@@ -3,13 +3,13 @@ declare(strict_types=1);
 
 class Validator
 {
-    /** Validates email adress */
+    /** Validates email address */
     public function validateEmail(string $email): string
     {
         if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            return "Valid email adress: $email";
+            return "Valid email address: $email";
         }
-        return "Invalid email adress: $email<br>Error: email must use format example@email.com";
+        return "Invalid email address: $email<br>Error: email must use the format example@email.com";
     }
 
     /** Validate password */

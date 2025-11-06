@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/Validator.php';
+require_once __DIR__ . '/db.php';
 
 final class auth
 {
@@ -46,7 +47,7 @@ final class auth
     }
 
     // Security function to redirect non-logged-in users to login page
-    public static function requireLogin(): void
+    public static function requireLogin(): int
     {
         if (session_status() !== PHP_SESSION_ACTIVE) {
             session_start();
@@ -58,6 +59,8 @@ final class auth
             header('Location: /PHP_Chatbot/public/auth/login.php');
             exit;
         }
+
+        return (int)$_SESSION['uid'];
     }
 
     // Check which user is logged in
@@ -69,5 +72,37 @@ final class auth
         }
         // Returns id of currently logged in users
         return isset($_SESSION['uid']) ? (int)$_SESSION['uid'] : null;
+    }
+
+    public static function user(int $userId): ?array
+    {
+        $pdo = db::pdo();
+        $stmt = $pdo->prepare('SELECT id, email FROM users WHERE id = ?');
+        $stmt->execute([$userId]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $user ?: null;
+    }
+
+    public static function publicPath(string $path): string
+    {
+        $base = '/PHP_Chatbot/public/';
+        $sanitized = ltrim($path, '/');
+
+        return $base . $sanitized;
+    }
+
+    public static function logout(): void
+    {
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            session_start();
+        }
+
+        $_SESSION = [];
+        if (ini_get('session.use_cookies')) {
+            $params = session_get_cookie_params();
+            setcookie(session_name(), '', time() - 42000, $params['path'], $params['domain'], $params['secure'], $params['httponly']);
+        }
+        session_destroy();
     }
 }

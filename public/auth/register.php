@@ -4,6 +4,7 @@ declare(strict_types=1);
 // Load dependencies
 require __DIR__ . '/../../src/db.php';
 require __DIR__ . '/../../src/auth.php';
+require __DIR__ . '/../../src/conversations.php';
 
 
 // Checks PHP session and runs new session if there are none
@@ -21,12 +22,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $password = $_POST['password'] ?? '';
         $oldEmail = $email;
 
-        // Uses auth.php logic to log in user once register is completed
         $userId = auth::register($email, $password);
-       // auth::loginSession($userId);
 
-        // Redirect to homepage for "logged in" users
-        header('Location: http://localhost/PHP_Chatbot/public/index.html');
+        // Auto-login new user
+        $_SESSION['uid'] = $userId;
+
+        // Start a first conversation and redirect to it
+        $conversationId = Conversations::create($userId);
+        header('Location: /PHP_Chatbot/public/chat/view.php?id=' . $conversationId);
         exit();
     } catch (Throwable $exception) {            
         $errors[] = $exception->getMessage();   // Collects exceptions and adds to list of errors
@@ -34,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 <!doctype html>
-<html lang="no">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <title>Register - Weightlifting Assistant</title>
