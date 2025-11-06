@@ -93,20 +93,16 @@ final class Conversations {
 
     public static function updateTitle(int $conversationId, string $title): void
     {
-        self::ensureSchema();
-
         $cleanTitle = trim($title);
         if ($cleanTitle === '') {
             return;
         }
 
         $pdo = db::pdo();
-        try {
-            $stmt = $pdo->prepare('UPDATE conversations SET title = ? WHERE id = ? AND (title IS NULL OR title = \'\')');
-            $stmt->execute([$cleanTitle, $conversationId]);
-        } catch (PDOException $exception) {
-            // Silently ignore if the schema does not expose the title column yet.
-        }
+        $stmt = $pdo->prepare(
+            'UPDATE conversations SET title = ? WHERE id = ? AND (title IS NULL OR title = \'\')'
+        );
+        $stmt->execute([$cleanTitle, $conversationId]);
     }
 
     private static function ensureSchema(): void

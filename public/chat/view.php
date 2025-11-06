@@ -225,7 +225,7 @@ $logoutUrl = auth::publicPath('logout.php');
             <?php foreach ($conversationList as $conversationItem): ?>
               <?php
                 $isActive = (int)$conversationItem['id'] === $conversationId;
-                $title = $conversationItem['title'] ?: ('Conversation #' . (int)$conversationItem['id']);
+                $title = $conversationItem['title'] ?: 'New Conversation';
                 $count = isset($conversationItem['message_count']) ? (int)$conversationItem['message_count'] : 0;
                 $last = $conversationItem['last_message_at'] ?? $conversationItem['created_at'];
                 $lastLabel = $last ? date('M d H:i', strtotime((string)$last)) : '—';
@@ -293,13 +293,6 @@ $logoutUrl = auth::publicPath('logout.php');
         </div>
       </form>
     </section>
-
-    <!-- Status -->
-    <div class="chat__status">
-      <span id="status" class="pill">Ready</span>
-      <span class="pill">Conversation #<?= $conversationId ?></span>
-    </div>
-  </main>
 
   <script type="module" src="../js/main.js"></script>
   </div>
