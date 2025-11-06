@@ -3,6 +3,17 @@ declare(strict_types=1);
 
 // Load dependencies
 require __DIR__ . '/../../src/db.php';
+require __DIR__ . '/../../src/conversations.php';
+
+function defaultConversationRedirect(int $userId): string
+{
+    $conversationId = Conversations::latestIdForUser($userId);
+    if ($conversationId === null) {
+        $conversationId = Conversations::create($userId);
+    }
+
+    return '/PHP_Chatbot/public/chat/view.php?id=' . $conversationId;
+}
 
 
 // Checks PHP session and runs new session if there are none
@@ -35,8 +46,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Stores logged in user id in session
         $_SESSION['uid'] = (int)$user['id'];
 
-        // Redirect to homepage for "logged in" users
-        header('Location: http://localhost/PHP_Chatbot/public/index.html');
+        // Redirect to previously requested page or the most recent conversation
+        $redirect = $_SESSION['redirect_after_login'] ?? defaultConversationRedirect((int)$user['id']);
+        unset($_SESSION['redirect_after_login']);
+
+        header('Location: ' . $redirect);
         exit();
     } catch (Throwable $exception) {
         $errors[] = $exception->getMessage();   // Collects exceptions and adds to list of errors
@@ -44,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 <!doctype html>
-<html lang="no">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <title>Login - Weightlifting Assistant</title>
