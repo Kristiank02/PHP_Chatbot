@@ -5,15 +5,37 @@ require_once __DIR__ . '/env.php';
 
 final class OpenAIClient
 {
+    // Store the API key
     private string $apiKey;
+    // Which AI model to use
     private string $model;
+    // The OpenAI web adress to use
     private string $baseUrl;
 
-    public function __construct(?string $apiKey = null, string $model = 'gpt-4o-mini', string $baseUrl = 'https://api.openai.com/v1')
+
+    /**
+     * OpenAI Client setup
+     * 
+     * @param string|null $apiKey - ApenAI key (provided by env.) 
+     * @param string $model - AI model to use (gpt-4o-mini)
+     * @param string $baseUrl - OpenAI's web address
+     */
+    public function __construct(
+        ?string $apiKey = null, 
+        string $model = 'gpt-4o-mini', 
+        string $baseUrl = 'https://api.openai.com/v1')
     {
-        $this->apiKey = trim($apiKey ?? (env::get('OPENAI_API_KEY') ?? ''));
+        // Get the API key - either from parameter or from .env
+        if ($apiKey !== null) {
+            $this->apiKey = trim($apiKey);
+        } else {
+            $keyFromEnv = env::get('OPENAI_API_KEY');
+            $this->apiKey = $keyFromEnv !== null ? trim($keyFromEnv) : '';
+        }
+
+        // Make sure API key exists
         if ($this->apiKey === '') {
-            throw new RuntimeException('OPENAI_API_KEY is missing. Add it to your .env file.');
+            throw new RuntimeException('OPEN_API_KEY is missing from .env');
         }
 
         $this->model = $model;
@@ -21,77 +43,136 @@ final class OpenAIClient
     }
 
     /**
-     * @param array<int, array{role:string, content:string}> $messages
+     * @param array $messages - Array of message objects
+     * @param float $temperature - How creative AI should be (0 = focused | 10 = creative)
+     * @return string - The AI's response to questions
      */
     public function chat(array $messages, float $temperature = 0.3): string
     {
+        // Make sure theres at least one message
         if (empty($messages)) {
             throw new InvalidArgumentException('Messages array cannot be empty');
         }
 
+        // Data-payload sent to OpenAI 
         $payload = [
             'model' => $this->model,
             'messages' => $messages,
             'temperature' => $temperature,
         ];
 
+        // Send request to OpenAI
         $response = $this->request('/chat/completions', $payload);
 
-        if (!isset($response['choices'][0]['message']['content'])) {
-            throw new RuntimeException('Unexpected response from the OpenAI API.');
-        }
+        // Extract reply from AI's respnse
+        $aiReply = $this->extractReply($response);
 
-        return trim((string)$response['choices'][0]['message']['content']);
+        return trim($aiReply);
     }
 
     /**
-     * @param array<string, mixed> $payload
-     * @return array<string, mixed>
+     * Extract the AI's respnse from OpenAI's respnse
+     * 
+     * @param array $response - The full response from OpenAI
+     * @return string - Just the text reply
      */
     private function request(string $path, array $payload): array
     {
+        // Create the full URL
         $url = $this->baseUrl . $path;
-        $ch = curl_init($url);
-        if ($ch === false) {
-            throw new RuntimeException('Failed to initialize cURL.');
+
+        // Convert from PHP-array to JSON
+        $jsonData = json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+        if ($jsonData === false) {
+            throw new RuntimeException('Failed to encode request payload as JSON');
         }
 
-        $body = json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-        if ($body === false) {
-            throw new RuntimeException('Failed to encode request payload as JSON.');
+        // Initialize CURL
+        $curl = curl_init($url);
+
+        if ($curl === false) {
+            throw new RuntimeException('Failed to initialize CURL');
         }
 
-        curl_setopt_array($ch, [
-            CURLOPT_POST => true,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_HTTPHEADER => [
-                'Content-Type: application/json',
-                'Authorization: Bearer ' . $this->apiKey,
-            ],
-            CURLOPT_TIMEOUT => 30,
-            CURLOPT_POSTFIELDS => $body,
+        // Set up the request options
+        curl_setopt($curl, CURLOPT_POST, true);             // Use POST method
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);   // Return as string
+        curl_setopt($curl, CURLOPT_TIMEOUT, 30);            // Wait 30 seconds before timeout
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $jsonData);  // The json data to be sent
+
+        // Set HTTP headers
+        curl_setopt($curl, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',           // Sending JSON
+            'Authorization: Bearer ' . $this->apiKey,   // API key for authentication
         ]);
 
-        $raw = curl_exec($ch);
-        $errno = curl_errno($ch);
-        $error = curl_error($ch);
-        $status = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
-        curl_close($ch);
+        // Execute request
+        $responseText = curl_exec($curl);
 
-        if ($raw === false || $errno !== 0) {
-            throw new RuntimeException('OpenAI request failed: ' . ($error ?: 'unknown error'));
+        // Check if there was an error
+        $errorNumber = curl_errno($curl);
+        $errorMessage = curl_error($curl);
+
+        // Get the HTTP status code
+        $httpStatus = curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
+
+        // Close the CURL connection
+        curl_close($curl);
+
+        // Handle CURL errors
+        if ($responseText == false || $errorNumber !== 0) {
+            $error = $errorMessage !== '' ? $errorMessage : 'unknown error';
+            throw new RuntimeException('OpenAI request failed: ' . $error);
         }
 
-        $decoded = json_decode($raw, true);
-        if (!is_array($decoded)) {
-            throw new RuntimeException('Unable to decode response from OpenAI: ' . $raw);
+        // Convert the JSON response text back to PHP array
+        $responseArray = json_decode($responseText, true);
+
+        if (!is_array($responseArray)) {
+            throw new RuntimeException('Unable to decode response from OpenAI: ' . $responseText);
         }
 
-        if ($status >= 400) {
-            $message = $decoded['error']['message'] ?? 'unknown error';
-            throw new RuntimeException("OpenAI API error ({$status}): {$message}");
+        // Check if OpenAI returned an error
+        if ($httpStatus >= 400) {
+            // Try to get the error message from the response
+            $errorMsg = 'unkown error';
+
+            if (isset($responseArray['error']) && is_array($responseArray['error'])) {
+                if (isset($responseArray['error']['message'])) {
+                    $errorMsg = $responseArray['error']['message'];
+                }
+            }
+
+            throw new RuntimeException("OpenAI API error ({$httpStatus}): {$errorMsg}");
         }
 
-        return $decoded;
+        return $responseArray;
+    }
+
+    /**
+     * Extract the AI's message from OpenAI's response
+     *
+     * @param array $response - The full response from OpenAI
+     * @return string - Just the text reply
+     */
+    private function extractReply(array $response): string
+    {
+        // Check if the response has the expected structure
+        if (!isset($response['choices']) || !is_array($response['choices'])) {
+            throw new RuntimeException('Invalid response from OpenAI: missing choices');
+        }
+
+        if (empty($response['choices'])) {
+            throw new RuntimeException('Invalid response from OpenAI: empty choices array');
+        }
+
+        $firstChoice = $response['choices'][0];
+
+        if (!isset($firstChoice['message']['content'])) {
+            throw new RuntimeException('Invalid response from OpenAI: missing message content');
+        }
+
+        return (string)$firstChoice['message']['content'];
     }
 }
