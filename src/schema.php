@@ -59,6 +59,8 @@ class Schema
 
     /**
      * Check if schema has been initialized
+     * 
+     * @return bool - True if schema initialized
      */
     public static function isInitialized(): bool
     {
@@ -67,12 +69,15 @@ class Schema
 
     /**
      * Verify that all required tables exist
+     * 
+     * @return bool - True if tables exist
      */
     public static function verify(): bool
     {
         $pdo = db::pdo();
         $requiredTables = ['users', 'conversations', 'messages'];
 
+        // Checks each table
         foreach ($requiredTables as $table) {
             $stmt = $pdo->query("SHOW TABLES LIKE '$table'");
             if ($stmt->rowCount() === 0) {

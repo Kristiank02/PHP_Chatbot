@@ -1,6 +1,10 @@
 <?php
 declare(strict_types=1);
 
+/**
+ * Application configuration file
+ * Contains constant for system prompt sent to AI
+ */
 final class AppConfig
 {
     public const SYSTEM_PROMPT = <<<'PROMPT'
