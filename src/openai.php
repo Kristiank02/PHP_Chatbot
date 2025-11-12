@@ -1,7 +1,6 @@
 <?php
 declare(strict_types=1);
 
-require_once __DIR__ . '/env.php';
 
 final class OpenAIClient
 {
@@ -29,17 +28,47 @@ final class OpenAIClient
         if ($apiKey !== null) {
             $this->apiKey = trim($apiKey);
         } else {
-            $keyFromEnv = env::get('OPENAI_API_KEY');
+            $keyFromEnv = $this->loadApiKey();
             $this->apiKey = $keyFromEnv !== null ? trim($keyFromEnv) : '';
         }
 
         // Make sure API key exists
         if ($this->apiKey === '') {
-            throw new RuntimeException('OPEN_API_KEY is missing from .env');
+            throw new RuntimeException('OPENAI_API_KEY is missing from .env');
         }
 
         $this->model = $model;
         $this->baseUrl = rtrim($baseUrl, '/');
+    }
+
+    /**
+     * Load API key from .env
+     * 
+     * @return string - API key
+     */
+    private function loadApiKey(): string
+    {
+        // Path to .env
+        $envPath = dirname(__DIR__) . '/.env';
+
+        // Check if .env exists
+        if (!file_exists($envPath)) {
+            return '';
+        }
+
+        // Read the entire file content
+        $content = file_get_contents($envPath);
+
+        if ($content === false) {
+            return '';
+        }
+
+        if (preg_match('/^OPENAI_API_KEY\s*=\s*(.+)$/m', $content, $matches)) {
+            // Remove quotes and whitespace
+            return trim($matches[1], " \t\n\r\0\x0B\"'");
+        }
+
+        return '';
     }
 
     /**
