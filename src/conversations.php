@@ -6,9 +6,6 @@ require_once __DIR__ . '/db.php';
 // Helper class to prepare conversations in the database
 final class Conversations {
 
-    // Check if we've already created the table
-    private static bool $schemaEnsured = false;
-
     /**
      * Create a new converstion for a user
      * 
@@ -223,30 +220,6 @@ final class Conversations {
      */
     private static function ensureSchema(): void
     {
-        // Skip this if table exists
-        if (self::$schemaEnsured) {
-            return;
-        }
-
-        // Mark that schema is ensured
-        self::$schemaEnsured = true;
-
-        // Database connection
-        $pdo = db::pdo();
-
-        // SQL to create the table 
-        $sql = <<<SQL
-CREATE TABLE IF NOT EXISTS conversations (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NULL,
-    title VARCHAR(255) DEFAULT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_user_created_at (user_id, created_at)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-SQL;
-
-        // Execute the table creation
-        $pdo->exec($sql);
+        Schema::initialize();
     }
-}
-?>
+}   

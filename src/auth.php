@@ -6,8 +6,6 @@ require_once __DIR__ . '/db.php';
 
 final class auth
 {
-    private static bool $schemaEnsured = false;
-
     public static function register(string $email, string $password): int
     {
         self::ensureSchema();
@@ -92,23 +90,7 @@ final class auth
 
     private static function ensureSchema(): void
     {
-        if (self::$schemaEnsured) {
-            return;
-        }
-        self::$schemaEnsured = true;
-
-        $pdo = db::pdo();
-        $sql = <<<SQL
-CREATE TABLE IF NOT EXISTS users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    email VARCHAR(255) NOT NULL UNIQUE,
-    password_hash VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_email (email)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-SQL;
-
-        $pdo->exec($sql);
+        Schema::intialize();
     }
 
     public static function publicPath(string $path): string

@@ -11,8 +11,6 @@ final class Messages
         'user', 
         'assistant'
     ];
-    // Check if we've already created the table
-    private static bool $schemaEnsured = false;
 
     /**
      * Add a new message to the database
@@ -198,30 +196,6 @@ final class Messages
      */
     private static function ensureSchema(): void
     {
-        // If we already created the table, this part will be skipped
-        if (self::$schemaEnsured) {
-            return;
-        }
-
-        // Mark that we've ensured schema
-        self::$schemaEnsured = true;
-
-        // Database connection
-        $pdo = db::pdo();
-
-        // SQL to create the table
-        $sql = <<<SQL
-CREATE TABLE IF NOT EXISTS messages (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    conversation_id INT NOT NULL,
-    role ENUM('system','user','assistant') NOT NULL,
-    content TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_conversation_created_at (conversation_id, created_at)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-SQL;
-
-        // Execute the table creation
-        $pdo->exec($sql);
+        Schema::initialize();
     }
 }
