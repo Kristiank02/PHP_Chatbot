@@ -2,9 +2,9 @@
 declare(strict_types=1);
 
 // Load dependencies
-require __DIR__ . '/../../src/db.php';
-require __DIR__ . '/../../src/auth.php';
-require __DIR__ . '/../../src/conversations.php';
+require_once __DIR__ . '/../../src/db.php';
+require_once __DIR__ . '/../../src/auth.php';
+require_once __DIR__ . '/../../src/conversations.php';
 
 
 // Checks PHP session and runs new session if there are none

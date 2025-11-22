@@ -7,10 +7,10 @@ class Schema
     private static bool $initialized = false;
 
     /**
-     * Initialize all databse tables and their relationships
+     * Initialize all database tables and their relationships
      * Called before database operations
      */
-    public static function intitialize(): void
+    public static function initialize(): void
     {
         if (self::$initialized) {
             return;
@@ -22,10 +22,13 @@ class Schema
         $pdo->exec(<<<SQL
         CREATE TABLE IF NOT EXISTS users (
             id INT AUTO_INCREMENT PRIMARY KEY,
+            username VARCHAR(50) UNIQUE DEFAULT NULL,
             email VARCHAR(255) NOT NULL UNIQUE,
             password_hash VARCHAR(255) NOT NULL,
+            role ENUM('user', 'admin', 'system') NOT NULL DEFAULT 'user',
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            INDEX idx_email (email)
+            INDEX idx_email (email),
+            INDEX idx_username (username)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         SQL);
 
@@ -54,7 +57,18 @@ class Schema
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         SQL);
 
-        self::$intitialized = true;
+                // Create login_attempts table
+        $pdo->exec(<<<SQL
+            CREATE TABLE IF NOT EXISTS login_attempts (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                username VARCHAR(50) NOT NULL,
+                ip_address VARCHAR(45) NOT NULL,
+                attempt_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                INDEX idx_username_time (username, attempt_time)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+        SQL);
+
+        self::$initialized = true;
     }
 
     /**
@@ -75,7 +89,7 @@ class Schema
     public static function verify(): bool
     {
         $pdo = db::pdo();
-        $requiredTables = ['users', 'conversations', 'messages'];
+        $requiredTables = ['users', 'conversations', 'messages', 'login_attempts'];
 
         // Checks each table
         foreach ($requiredTables as $table) {

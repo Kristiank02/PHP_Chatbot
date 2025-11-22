@@ -21,6 +21,11 @@ $conversationList = $userId ? Conversations::listForUser($userId) : [];
 $profileLabel = 'Account menu';
 $newChatUrl = auth::publicPath('chat/new.php');
 $logoutUrl = auth::publicPath('logout.php');
+
+// Get current user to check if admin
+$currentUser = auth::getCurrentUser();
+$isAdmin = $currentUser && $currentUser['role'] === 'admin';
+$adminDashboardUrl = auth::publicPath('admin/dashboard.php');
 ?>
 
 <!DOCTYPE html>
@@ -152,21 +157,31 @@ $logoutUrl = auth::publicPath('logout.php');
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 2.5rem;
+      gap: 0.5rem;
+      padding: 0.4rem 0.8rem;
       height: 2.5rem;
       border-radius: 999px;
       background: rgba(255,255,255,0.1);
       color: inherit;
-      font-size: 1.2rem;
+      font-size: 0.9rem;
       text-decoration: none;
       transition: background .2s ease;
       border: none;
       cursor: pointer;
+      width: auto;
     }
     .chat__user:hover,
     .chat__user:focus-visible {
       background: rgba(255,255,255,0.25);
       outline: none;
+    }
+    .chat__user-name {
+      font-size: 0.85rem;
+      opacity: 0.9;
+      max-width: 150px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
     .chat__user-menu {
       position: relative;
@@ -253,9 +268,13 @@ $logoutUrl = auth::publicPath('logout.php');
         <div class="chat__user-menu">
           <button type="button" class="chat__user" aria-haspopup="true" aria-label="<?= htmlspecialchars($profileLabel, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
             <span aria-hidden="true">👤</span>
+            <span class="chat__user-name"><?= htmlspecialchars($currentUser['username'] ?? $currentUser['email'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></span>
           </button>
           <div class="chat__user-dropdown">
             <a href="<?= htmlspecialchars($newChatUrl, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">Start new conversation</a>
+            <?php if ($isAdmin): ?>
+            <a href="<?= htmlspecialchars($adminDashboardUrl, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">🔐 Admin Dashboard</a>
+            <?php endif; ?>
             <a href="<?= htmlspecialchars($logoutUrl, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">Log out</a>
           </div>
         </div>
