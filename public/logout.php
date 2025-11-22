@@ -4,9 +4,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../src/auth.php';
 
 // Start session to get username
-if (session_status() !== PHP_SESSION_ACTIVE) {
-    session_start();
-}
+auth::startSession();
 
 // Store username before logout
 $username = $_SESSION['username'] ?? 'User';
@@ -15,9 +13,7 @@ $username = $_SESSION['username'] ?? 'User';
 auth::logout();
 
 // Start new session for flash message
-if (session_status() !== PHP_SESSION_ACTIVE) {
-    session_start();
-}
+auth::startSession();
 
 // Set logout message
 $_SESSION['logout_message'] = "You have been successfully logged out. See you next time, {$username}!";

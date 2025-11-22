@@ -15,7 +15,7 @@ final class Conversations {
     public static function create(?int $userId): int 
     {
         // Make sure table exists
-        self::ensureSchema();
+        Schema::initialize();
 
         // Database connection
         $pdo = db::pdo();
@@ -40,7 +40,7 @@ final class Conversations {
     public static function find(int $conversationId): ?array
     {
         // Make sure table exists
-        self::ensureSchema();
+        Schema::initialize();
 
         // Database connection
         $pdo = db::pdo();
@@ -100,7 +100,7 @@ final class Conversations {
     public static function listForUser(int $userId): array
     {
         // Make sure table exists
-        self::ensureSchema();
+        Schema::initialize();
 
         // Database connection
         $pdo = db::pdo();
@@ -143,7 +143,7 @@ final class Conversations {
     public static function latestIdForUser(int $userId): ?int
     {
         // Make sure table exists
-        self::ensureSchema();
+        Schema::initialize();
 
         // Database connection
         $pdo = db::pdo();
@@ -196,16 +196,5 @@ final class Conversations {
                 AND (title IS NULL OR title = \'\')';
         $stmt = $pdo->prepare($sql);
         $stmt->execute([$cleanTitle, $conversationId]);
-    }
-
-    /**
-     * Create the conversations table if it doesn't exist
-     * 
-     * Called automatically before any database operation
-     * Only called once per request
-     */
-    private static function ensureSchema(): void
-    {
-        Schema::initialize();
     }
 }   

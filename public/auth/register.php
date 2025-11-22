@@ -8,9 +8,7 @@ require_once __DIR__ . '/../../src/conversations.php';
 
 
 // Checks PHP session and runs new session if there are none
-if (session_status() !== PHP_SESSION_ACTIVE) {
-    session_start();
-}
+auth::startSession();
 
 $errors = [];       // Collects error messages
 $oldEmail = '';     // Field remains filled out even after errors

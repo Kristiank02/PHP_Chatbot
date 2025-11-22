@@ -1,72 +1,54 @@
 <?php
-declare(strict_types=1);
-
-/**
- * Validator class to validate user data
- * Validates emails and passwords
- */
 class Validator
 {
     /**
-     * Vaildates email
+     * Checks if email is valid using FILTER_VALIDATE_EMAIL
      * 
-     * Uses PHP's FILTER_VALIDATE_EMAIL to check for regular expression
-     * 
-     * @param string $email - Email to be validated
-     * @return string - The error-message to indicate invalid email
+     * @param string $email
+     * @return bool - Valid email return True
      */
-    public function validateEmail(string $email): string
+    public static function validateEmail(string $email): bool
     {
-        // Uses filter_var with FILTER_VALIDATE_EMAIL for validation
-        if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            return "Valid email address: $email";
-        }
-        return "Invalid email address: $email<br>Error: email must use the format example@email.com";
+        return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
     }
 
-    /** 
-     * Validates password
+    /**
+     * Checks if password towards certain criteria
      * 
-     * Password needs to meet certain requirements:
-     * - 9 characters long
-     * - At least 1 upper case letter
-     * - At least 2 numbers
-     * - At least 1 special character
-     * 
-     * @param string $password - Password to be validated
-     * @return string - Message to indicate invalid password
+     * @param string $password
+     * @return array $errors - List invalid password reasons
      */
-    public function validatePassword(string $password): string
+    public static function validatePassword(string $password): array
     {
-        // Array to collect error-messages
-        $error = [];
+        $errors = [];
 
-        /**
-         * Password requirements:
-         * - length
-         * - uppercase-letter
-         * - numbers
-         * - special character
-         */
-        if (strlen($password) < 9) {
-            $error[] = "must be at least 9 characters long";
+        if (strlen($password) < 8) {
+            $errors[] = "Password must be at least 8 characters long";
         }
-        if (!preg_match('/[A-ZÆØÅ]/u', $password)) {
-            $error[] = "must contain at least one upper case letter";
+        if (!preg_match('/[A-ZÆØÅ]/', $password)) {
+            $errors[] = "Password must contain at least one uppercase letter";
         }
-        if (preg_match_all('/[0-9]/', $password) < 2) {
-            $error[] = "must contain at least two numbers";
+        if (!preg_match('/a-z/', $password)) {
+            $errors[] = "Password must contain at least one lowercase letter";
         }
-        if (!preg_match('/[\W_]/', $password)) {
-            $error[] = "must contain at least one special character";
+        if (!preg_match('/[0-9]/', $password)) {
+            $errors[] = "Password must contain at least one number";
         }
+        if (!preg_match('/[^A-Za-z0-9]/', $password)) {
+            $errors[] = "Password must contain at least one special character";
+        }
+        
+        return $errors;
+    }
 
-        // If $error[] is empty, password is valid
-        if (empty($error)) {
-            return "Valid password";
-        }
-
-        // Returns error-messages for each requirement that is unmet
-        return "Invalid password: $password<br>Error: " . implode(", ", $error) . ".";
+    /**
+     * Checks if password is valid
+     * 
+     * @param string $password
+     * @return bool - True if $errors[] is empty
+     */
+    public static function isPasswordValid(string $password): bool
+    {
+        return empty(self::validatePassword($password));
     }
 }

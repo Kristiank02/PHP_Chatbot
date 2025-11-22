@@ -23,7 +23,7 @@ final class Messages
     public static function add(int $conversationId, string $role, string $content): int
     {
         // Make sure the messages table exists
-        self::ensureSchema();
+        Schema::initialize();
 
         // Validate the role, and default to 'user' if role is not valid
         $validRole = $role;
@@ -62,7 +62,7 @@ final class Messages
     public static function listForConversation(int $conversationId): array
     {
         // Make sure message table exists
-        self::ensureSchema();
+        Schema::initialize();
 
         // Database connection
         $pdo = db::pdo();
@@ -99,7 +99,7 @@ final class Messages
     public static function historyForAI(int $conversationId, int $limit = 12): array
     {
         // Make sure messages table exists
-        self::ensureSchema();
+        Schema::initialize();
 
         // Database connection
         $pdo = db::pdo();
@@ -161,7 +161,7 @@ final class Messages
     public static function firstUserMessage(int $conversationId): ?string
     {
         // Make sure the table exists
-        self::ensureSchema();
+        Schema::initialize();
 
         // Database connection
         $pdo = db::pdo();
@@ -186,16 +186,5 @@ final class Messages
         }
 
         return (string)$firstMessage;
-    }
-
-    /**
-     * Create the messages table if it doesn't exist
-     * 
-     * Called automatically before any db operation
-     * Static flag makes sure we only check once per request
-     */
-    private static function ensureSchema(): void
-    {
-        Schema::initialize();
     }
 }
