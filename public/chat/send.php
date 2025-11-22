@@ -21,31 +21,12 @@ $userId = auth::requireLogin();
 $conversationId = (int)($_POST['conversation_id'] ?? 0);
 $message = trim((string)($_POST['message'] ?? ''));
 
-// Check if request is AJAX or regular form
-$isJsonRequest = false;
-$isAjaxRequest = false;
+// Check if this is an AJAX request (sent from JavaScript)
+$isAjax = isset($_SERVER['HTTP_X_REQUESTED_WITH'])
+    && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
 
-// Check if the browser requested JSON response
-if (isset($_SERVER['HTTP_ACCEPT'])) {
-    $acceptHeader = $_SERVER['HTTP_ACCEPT'];
-    $wantJson = stripos($acceptHeader, 'application/json') !== false;
-
-    if ($wantJson) {
-        $isJsonRequest = true;
-    }
-}
-
-// Check if this is an AJAX request
-if (isset($_SERVER['HTTP_X_REQUESTED_WITH'])) {
-    $requestedWith = strtolower($_SERVER['HTTP_X_REQUESTED_WITH']);
-
-    if ($requestedWith === 'xmlhttprequest') {
-        $isAjaxRequest = true;
-    }
-}
-
-// If either JSON or AJAX, respond with JSON instead of redirect
-$responseAsJson = $isJsonRequest || $isAjaxRequest;
+// Respond with JSON for AJAX requests, redirect for regular forms
+$responseAsJson = $isAjax;
 
 // Check if we have the required data
 if ($conversationId <= 0 || $message === '') {
@@ -100,7 +81,7 @@ try {
 
 /**
  * Shorten text string to wanted length
- * 
+ *
  * @param string $text - Text to shorten
  * @param int $limit - Maximum number of characters set to 80
  * @return string - Shortened text
@@ -115,40 +96,13 @@ function truncate(string $text, int $limit = 80): string
         return 'New conversation';
     }
 
-
-    // Check if we have multibyte string functions (for international characters)
-    $hasMultibyteSupport = function_exists('mb_strlen');
-
-    if ($hasMultibyteSupport) {
-        // Better for emojies and international characters
-        $textLength = mb_strlen($text);
-
-        // If text is already short enough, return as it is
-        if ($textLength <= $limit) {
-            return $text;
-        }
-
-        // Cut text and add "..."
-        $shortened = mb_substr($text, 0, $limit - 1);
-        $shortened = rtrim($shortened);
-
-        return $shortened . '...';
-
-    } else {
-        // Use regular functions
-        $textLength = strlenU($text);
-
-        // If text is already short enough, return as it is
-        if ($textLength <= $limit) {
-            return $text;
-        }
-
-        // Cut the text and add "..."
-        $shortened = substr($text, 0, $limit - 1);
-        $shortened = rtrim($shortened);
-
-        return $shortened . '...';
+    // If text is already short enough, return as it is
+    if (strlen($text) <= $limit) {
+        return $text;
     }
+
+    // Cut text and add "..."
+    return substr($text, 0, $limit - 3) . '...';
 }
 
 /**
