@@ -105,37 +105,23 @@ final class Conversations {
         // Database connection
         $pdo = db::pdo();
 
-        // Joins conversations table with messages tabel and displays relevant data
+        // Joins conversations table with messages table and displays relevant data
         $sql = 'SELECT c.id, c.title, c.created_at,
-                COALESCE(stats.message_count, 0) 
+                COALESCE(stats.message_count, 0)
                 AS message_count, stats.last_message_at
                 FROM conversations c
                 LEFT JOIN (
-                SELECT conversation_id, COUNT(*) 
-                AS message_count, MAX(created_at) 
+                SELECT conversation_id, COUNT(*)
+                AS message_count, MAX(created_at)
                 AS last_message_at
                 FROM messages
-                GROUP BY conversation_id) stats 
+                GROUP BY conversation_id) stats
                 ON stats.conversation_id = c.id
                 WHERE c.user_id = ?
                 ORDER BY COALESCE(stats.last_message_at, c.created_at) DESC';
 
-        try {
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute([$userId]);
-        } catch (PDOException $exception) {
-            // If the messages table does not exist yet this query fails
-            // Use simpler query without messages if original query fails
-            $fallback = 'SELECT id, title, created_at,
-                        NULL AS message_count,
-                        NULL AS last_message_at
-                        FROM conversations
-                        WHERE user_id = ?
-                        ORDER BY created_at DESC';
-            
-            $stmt = $pdo->prepare($fallback);
-            $stmt->execute([$userId]);
-        }
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$userId]);
 
         // Get all conversations as an array
         $conversations = $stmt->fetchAll(PDO::FETCH_ASSOC);

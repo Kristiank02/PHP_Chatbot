@@ -169,30 +169,18 @@ final class auth
         return $base . $sanitized;
     }
 
-    // Log out current user and destroys session
-    // Removes cookies if they exist (we never set any)
+    /**
+     * Log out current user and destroy session
+     */
     public static function logout(): void
     {
-        // Starts session if non existent
+        // Start session if non existent
         if (session_status() !== PHP_SESSION_ACTIVE) {
             session_start();
         }
 
-        // Clear all session variables
+        // Clear all session variables and destroy session
         $_SESSION = [];
-        if (ini_get('session.use_cookies')) {
-            $params = session_get_cookie_params();
-            // Set cookie expiration to past to delete (for some reason only way to delete cookies in PHP)
-            setcookie(session_name(), 
-            '', 
-            time() - 42000, 
-            $params['path'], 
-            $params['domain'], 
-            $params['secure'], 
-            $params['httponly']);
-        }
-
-        // Destroy session
         session_destroy();
     }
 

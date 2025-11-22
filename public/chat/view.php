@@ -19,7 +19,6 @@ if (!$conversation) {
 $messages = Messages::listForConversation($conversationId);
 $conversationList = $userId ? Conversations::listForUser($userId) : [];
 $profileLabel = 'Account menu';
-$newChatUrl = auth::publicPath('chat/new.php');
 $logoutUrl = auth::publicPath('logout.php');
 
 // Get current user to check if admin
@@ -271,7 +270,6 @@ $adminDashboardUrl = auth::publicPath('admin/dashboard.php');
             <span class="chat__user-name"><?= htmlspecialchars($currentUser['username'] ?? $currentUser['email'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></span>
           </button>
           <div class="chat__user-dropdown">
-            <a href="<?= htmlspecialchars($newChatUrl, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">Start new conversation</a>
             <?php if ($isAdmin): ?>
             <a href="<?= htmlspecialchars($adminDashboardUrl, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">🔐 Admin Dashboard</a>
             <?php endif; ?>
