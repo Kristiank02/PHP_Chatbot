@@ -81,10 +81,11 @@ $adminDashboardUrl = auth::publicPath('admin/dashboard.php');
             <span class="chat__user-name"><?= htmlspecialchars($currentUser['username'] ?? $currentUser['email'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></span>
           </button>
           <div class="chat__user-dropdown">
-            <?php if ($isAdmin): ?>
-            <a href="<?= htmlspecialchars($adminDashboardUrl, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">🔐 Admin Dashboard</a>
-            <?php endif; ?>
-            <a href="<?= htmlspecialchars($logoutUrl, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">Log out</a>
+              <a href="<?= htmlspecialchars(auth::publicPath('profile.php'), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">👤 Profile</a>
+              <?php if ($isAdmin): ?>
+              <a href="<?= htmlspecialchars($adminDashboardUrl, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">🔐 Admin Dashboard</a>
+              <?php endif; ?>
+              <a href="<?= htmlspecialchars($logoutUrl, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">Log out</a>
           </div>
         </div>
       </header>
