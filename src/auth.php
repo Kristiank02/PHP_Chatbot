@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/Validator.php';
 require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/Schema.php';
 
 /**
  * Authentication and authorization helper class
@@ -10,6 +11,11 @@ require_once __DIR__ . '/db.php';
  */
 final class auth
 {
+    // How many failed attempts before lockout
+    private const MAX_LOGIN_ATTEMPTS = 3;
+    // How long lockout lasts (in minutes)
+    private const LOCKOUT_DURATION_MINUTES = 60;
+
     /**
      * Register new account
      * 
@@ -142,7 +148,7 @@ final class auth
     // Ensure database schema is initialized
     private static function ensureSchema(): void
     {
-        Schema::intialize();
+        Schema::initialize();
     }
 
     /**
@@ -188,5 +194,148 @@ final class auth
 
         // Destroy session
         session_destroy();
+    }
+
+    /**
+     * Check if user is locked out due to too many login attempts
+     * 
+     * @param string $identifier - Username or email
+     * @return bool - True if locked out
+     */
+    public static function isLockedOut(string $identifier): bool
+    {
+        $pdo = db::pdo();
+
+        $stmt = $pdo->prepare(
+            'SELECT COUNT(*) as attempt_count
+             FROM login_attempts
+             WHERE username = ?
+             AND attempt_time > DATE_SUB(NOW(), INTERVAL ? MINUTE)'
+        );
+        $stmt->execute([$identifier, self::LOCKOUT_DURATION_MINUTES]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return ($result['attempt_count'] ?? 0) >= self::MAX_LOGIN_ATTEMPTS;
+    }
+
+    /**
+     * Record every failed login
+     * 
+     * @param string $identifier - Username or email
+     */
+    public static function recordFailedAttempt(string $identifier): void
+    {
+        $pdo = db::pdo();
+        $ipAdress = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+
+        $stmt = $pdo->prepare(
+            'INSERT INTO login_attempts (username, ip_address, attempt_time)
+            VALUES (?, ?, NOW())'
+        );
+        $stmt->execute([$identifier, $ipAdress]);
+
+        // Clean up old attempts
+        self::cleanupOldAttempts();
+    }
+
+    /**
+     * Clear failed attempts for user after successful login
+     * 
+     * @param string $identifier - Username or email
+     */
+    public static function clearFailedAttempts(string $identifier): void
+    {
+        $pdo = db::pdo();
+        $stmt = $pdo->prepare('DELETE FROM login_attempts WHERE username = ?');
+        $stmt->execute([$identifier]);
+    }
+
+    /**
+     * Remove old login attempts from database
+     */
+    private static function cleanupOldAttempts(): void
+    {
+        $pdo = db::pdo();
+        $stmt = $pdo->prepare(
+            'DELETE FROM login_attempts
+            WHERE attempt_time < DATE_SUB(NOW(), INTERVAL ? MINUTE)'
+            );
+            $stmt->execute([self::LOCKOUT_DURATION_MINUTES]);
+    }
+
+    /**
+     * Get remaining login attempts before lockout
+     * 
+     * @param string $identifier - Username or email
+     * @return int - Number of attempts remaining
+     */
+    public static function getRemainingAttempts(string $identifier): int
+    {
+        $pdo = db::pdo();
+
+        $stmt = $pdo->prepare(
+            'SELECT COUNT(*) AS attempts_count
+            FROM login_attempts
+            WHERE username = ?
+            AND attempt_time > DATE_SUB(NOW(), INTERVAL ? MINUTE)'
+        );
+        $stmt->execute([$identifier, self::LOCKOUT_DURATION_MINUTES]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        $attemptCount = $result['attempt_count'] ?? 0;
+        return max(0, self::MAX_LOGIN_ATTEMPTS - $attemptCount);
+    }
+
+    /**
+     * Require user to have a specific role
+     * 
+     * @param string|array $allowedRoles - Single role or array
+     * @throws RuntimeException if user doesn't have required role
+     */
+    public static function requireRole($allowedRoles): void
+    {
+        //Ensure user is logged in
+        $userId = self::requireLogin();
+
+        // Get user data including role
+        $pdo = db::pdo();
+        $stmt = $pdo->prepare('SELECT role FROM users WHERE id = ?');
+        $stmt->execute([$userId]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$user) {
+            throw new RuntimeException('User not found');
+        }
+
+        // Convert single role into array
+        if (!is_array($allowedRoles)) {
+            $allowedRoles = [$allowedRoles];
+        }
+
+        // Check if user has required role
+        if (!in_array($user['role'], $allowedRoles, true)) {
+            http_response_code(403);
+            die('Access denied: You do not have permission to access this page');
+        }
+    }
+
+    /**
+     * Get current user's data including role and username
+     * 
+     * @return array|null - User data or null if not logged in
+     */
+    public static function getCurrentUser(): ?array
+    {
+        $userId = self::currentUserId();
+        if ($userId === null) {
+            return null;
+        }
+
+        $pdo = db::pdo();
+        $stmt = $pdo->prepare('SELECT id, email, username, role, created_at FROM users WHERE id = ?');
+        $stmt->execute([$userId]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $user ?: null;
     }
 }

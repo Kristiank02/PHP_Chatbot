@@ -65,7 +65,7 @@ try {
     Messages::add($conversationId, 'user', $message);
 
     // Generate title for conversation if it doesn't have one
-    $firstMessage = Message::firstUserMessage($conversationId);
+    $firstMessage = Messages::firstUserMessage($conversationId);
 
     if ($firstMessage === null) {
         $firstMessage = $message;
@@ -76,7 +76,7 @@ try {
 
     // Get conversation history for AI
     // Only send the past 12 messages to save money and tokens
-    $recentMessages = Messages::historyForAI($conversationId, 12);
+    $messagesForAI = Messages::historyForAI($conversationId, 12);
 
     array_unshift($messagesForAI, [
         'role' => 'system',

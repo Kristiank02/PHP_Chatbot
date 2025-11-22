@@ -2,8 +2,9 @@
 declare(strict_types=1);
 
 // Load dependencies
-require __DIR__ . '/../../src/db.php';
-require __DIR__ . '/../../src/conversations.php';
+require_once __DIR__ . '/../../src/auth.php';
+require_once __DIR__ . '/../../src/db.php';
+require_once __DIR__ . '/../../src/conversations.php';
 
 function defaultConversationRedirect(int $userId): string
 {
@@ -23,39 +24,74 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 
 $errors = [];       // Collects error messages
 $oldEmail = '';     // Field remains filled out even after errors
+$successMessage = '';
 
-// Checks request and runs if POST
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    try {
-        $email = trim($_POST['email'] ?? '');
-        $password = $_POST['password'] ?? '';
-        $oldEmail = $email;
-
-        // Database connection
-        $pdo = db::pdo();
-
-        // Prepare statements to prevent SQL injection
-        $stmt = $pdo->prepare('SELECT id, password_hash FROM users WHERE email = ?');
-        $stmt->execute([$email]);
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if (!$user || !password_verify($password, (string)$user['password_hash'])) {
-            throw new RuntimeException('Invalid email or password');
-        }
-
-        // Stores logged in user id in session
-        $_SESSION['uid'] = (int)$user['id'];
-
-        // Redirect to previously requested page or the most recent conversation
-        $redirect = $_SESSION['redirect_after_login'] ?? defaultConversationRedirect((int)$user['id']);
-        unset($_SESSION['redirect_after_login']);
-
-        header('Location: ' . $redirect);
-        exit();
-    } catch (Throwable $exception) {
-        $errors[] = $exception->getMessage();   // Collects exceptions and adds to list of errors
-    }
+// Check for logout success message
+if (isset($_SESSION['logout_message'])) {
+    $successMessage = $_SESSION['logout_message'];
+    unset($_SESSION['logout_message']);
 }
+
+// Checks requests and runs if POST
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  try {
+    $identifier = trim($_POST['email'] ?? ''); // Can be email or username
+    $password = $_POST['password'] ?? '';
+    $oldEmail = $identifier;
+
+    // Check if user is locked out
+    if (auth::isLockedOut($identifier)) {
+      throw new RuntimeException(
+        'Account temporarily locked due to too many failed login attempts. ' .
+        'Please try again in 60 minutes.'
+      );
+    }
+
+    // Database connection
+    $pdo = db::pdo();
+
+    // Support both emails and username login
+    $stmt = $pdo->prepare(
+      'SELECT id, password_hash, username, role FROM users
+      WHERE email = ? OR username = ?'
+    );
+    $stmt->execute([$identifier, $identifier]);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$user || !password_verify($password, (string)$user['password_hash'])) {
+      //Record failed attempt
+      auth::recordFailedAttempt($identifier);
+
+      // Show remaining attempts
+      $remaining = auth::getRemainingAttempts($identifier);
+      if ($remaining > 0) {
+        throw new RuntimeException(
+          "Invalid email/username or password. You have {$remaining} attempts remaining."
+        );
+      } else {
+        throw new RuntimeException('Invalid email/username or password.');
+      }
+    }
+
+    // Successful login - clear failed attempts
+    auth::clearFailedAttempts($identifier);
+
+    // Store user data in session
+    $_SESSION['uid'] = (int)$user['id'];
+    $_SESSION['username'] = $user['username'] ?? $user['email']; // Fallback to email
+    $_SESSION['role'] = $user['role'];
+
+    // Redirect  to previously requested page or the most recent conversation
+    $redirect = $_SESSION['redirect_after_login'] ?? defaultConversationRedirect((int)$user['id']);
+    unset($_SESSION['redirect_after_login']);
+
+    header('Location: ' . $redirect);
+    exit();
+  } catch (Throwable $exception) {
+    $errors[] = $exception->getMessage();
+  }
+}
+
 ?>
 <!doctype html>
 <html lang="en">
@@ -73,6 +109,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <p>Welcome back to Weightlifting Assistant</p>
       </div>
 
+      <?php if ($successMessage): ?>
+        <div class="auth-success">
+          <p><?= htmlspecialchars($successMessage, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p>
+        </div>
+      <?php endif; ?>
+
       <?php if ($errors): ?>
         <div class="auth-errors">
           <?php foreach ($errors as $message): ?>
@@ -83,8 +125,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
       <form method="post" action="" class="auth-form">
         <label>
-          Email
-          <input type="email" name="email" autofocus="autofocus" autocomplete="on" placeholder="email@example.com" required value="<?= htmlspecialchars($oldEmail, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
+          Email or Username
+          <input type="text" name="email" autofocus="autofocus" autocomplete="username" placeholder="email@example.com or username" required value="<?= htmlspecialchars($oldEmail, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
         </label>
         <label>
           Password

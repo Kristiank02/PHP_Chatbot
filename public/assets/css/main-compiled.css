@@ -1350,3 +1350,17 @@ select {
 @media (min-width: 769px) {
   .show-mobile { display: none !important; }
 }
+
+/* Success message styling */
+.auth-success {
+  background-color: #d4edda;
+  border: 1px solid #c3e6cb;
+  color: #155724;
+  padding: 12px 16px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+}
+
+.auth-success p {
+  margin: 0;
+}
