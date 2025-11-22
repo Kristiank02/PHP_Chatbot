@@ -22,8 +22,8 @@ final class auth
      * Validates emails, passwords and cheks for duplicates
      * Creates new user in database
      * 
-     * @param string $email - User's email address
-     * @param string $password - User's password
+     * @param string $email
+     * @param string $password 
      * @return int - The new user ID created
      * @throws InvalidArgumentException - If email or password validation fails
      * @throws RuntimeException - If emails is already in use 
@@ -31,24 +31,20 @@ final class auth
     public static function register(string $email, string $password): int
     {
         // Make sure table exists
-        self::ensureSchema();
+        Schema::initialize();
 
         // Remove extra whitespace from email
         $email = trim($email);
-        $validator = new Validator();
-
+        
         // Validates email format using Validator class
-        $emailResult = $validator->validateEmail($email);
-        if (strpos($emailResult, 'Invalid') !== false) {
+        if (!Validator::validateEmail($email)) {
             throw new InvalidArgumentException('Invalid email address');
         }
 
-        // Validates password format using Validator class
-        $passwordResult = $validator->validatePassword($password);
-        if (strpos($passwordResult, 'Invalid') !== false) {
-            // Extract error message from result
-            $errorMsg = strip_tags(substr($passwordResult, strpos($passwordResult, 'Error:')));
-            throw new InvalidArgumentException($errorMsg);
+        //Validates password format using Validator class
+        $passwordErrors = Validator::validatePassword($password);
+        if (!empty($passwordErrors)) {
+            throw new InvalidArgumentException('Password validation failed: ' . implode(', ', $passwordErrors));
         }
 
         // Database connection
@@ -86,9 +82,7 @@ final class auth
     public static function requireLogin(): int
     {
         // Start session if not already exists
-        if (session_status() !== PHP_SESSION_ACTIVE) {
-            session_start();
-        }
+        auth::startSession();
 
         // Check if user is logged in
         if (empty($_SESSION['uid'])) {
@@ -113,43 +107,19 @@ final class auth
     public static function currentUserId(): ?int
     {
         // Start session if not active
-        if (session_status() !== PHP_SESSION_ACTIVE) {
-            session_start();
-        }
+        auth::startSession();
+
         // Returns ID of currently logged in users, null if not logged in
         return isset($_SESSION['uid']) ? (int)$_SESSION['uid'] : null;
     }
 
-    /**
-     * Get user info by user ID
-     * 
-     * Fetches ID and email from database 
-     * 
-     * @param int $userId - ID of the user to be fetched
-     * @return array|null - Array with email and id, or null if not found
-     */
-    public static function user(int $userId): ?array
+    public static function startSession(): void
     {
-        // Make sure table exists
-        self::ensureSchema();
-
-        // Database connection
-        $pdo = db::pdo();
-
-        // Fetch email and id by user ID 
-        $stmt = $pdo->prepare('SELECT id, email FROM users WHERE id = ?');
-        $stmt->execute([$userId]);
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        // Returns the requested data
-        return $user ?: null;
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            session_start();
+        }
     }
 
-    // Ensure database schema is initialized
-    private static function ensureSchema(): void
-    {
-        Schema::initialize();
-    }
 
     /**
      * Generate full public URL path
@@ -175,9 +145,7 @@ final class auth
     public static function logout(): void
     {
         // Start session if non existent
-        if (session_status() !== PHP_SESSION_ACTIVE) {
-            session_start();
-        }
+        auth::startSession();
 
         // Clear all session variables and destroy session
         $_SESSION = [];
@@ -270,7 +238,7 @@ final class auth
         $stmt->execute([$identifier, self::LOCKOUT_DURATION_MINUTES]);
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        $attemptCount = $result['attempt_count'] ?? 0;
+        $attemptCount = $result['attempts_count'] ?? 0;
         return max(0, self::MAX_LOGIN_ATTEMPTS - $attemptCount);
     }
 
