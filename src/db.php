@@ -12,7 +12,16 @@ final class db
     private const DB_PASS = '';         
     private const DB_NAME = 'chatbot';  
 
-    // Returns a PDO instance connected to the database
+    /**
+     * Returns a singleton PDO connection instance.
+     *
+     * Creates the PDO connection if it does not already exist.
+     * Sets error mode to exception and throws a RuntimeException if connection fails.
+     *
+     * @return PDO  The active PDO database connection.
+     *
+     * @throws RuntimeException If the connection to the database cannot be established.
+     */
     public static function pdo(): PDO
     {
         // If PDO connection doesn’t exist yet, create a new one
