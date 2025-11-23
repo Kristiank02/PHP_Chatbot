@@ -9,6 +9,18 @@ body {
   overflow: hidden;
 }
 
+/* Override for scrollable pages (profile, admin) */
+body.page-scrollable,
+body.page-scrollable html {
+  overflow: auto;
+  height: auto;
+  min-height: 100vh;
+}
+
+body.page-scrollable::before {
+  display: none;
+}
+
 /* Subtle scanline effect overlay */
 body::before {
   content: " ";

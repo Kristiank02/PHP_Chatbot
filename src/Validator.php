@@ -1,4 +1,8 @@
 <?php
+
+//===============\\
+//---Modul 7.2---\\
+//===============\\
 class Validator
 {
     /**
@@ -28,7 +32,7 @@ class Validator
         if (!preg_match('/[A-ZÆØÅ]/', $password)) {
             $errors[] = "Password must contain at least one uppercase letter";
         }
-        if (!preg_match('/a-z/', $password)) {
+        if (!preg_match('/[a-z]/', $password)) {
             $errors[] = "Password must contain at least one lowercase letter";
         }
         if (!preg_match('/[0-9]/', $password)) {
