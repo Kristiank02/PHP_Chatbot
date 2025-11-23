@@ -11,6 +11,9 @@ require_once __DIR__ . '/Schema.php';
  */
 final class auth
 {
+    //========================================
+    // MODUL 8.10 - Lockout on 3 attempts
+    //========================================
     // How many failed attempts before lockout
     private const MAX_LOGIN_ATTEMPTS = 3;
     // How long lockout lasts (in minutes)
@@ -61,6 +64,9 @@ final class auth
             throw new RuntimeException('Email is already in use');
         }
 
+            //========================================
+            // MODUL 8.11 - Security
+            //========================================
         // Hashing passwords using PASSWORD_DEFAULT
         $hash = password_hash($password, PASSWORD_DEFAULT);
 
@@ -73,6 +79,9 @@ final class auth
         return (int)$pdo->lastInsertId(); 
     }
 
+    //========================================
+    // MODUL 8.6 - Login check
+    //========================================
     /**
      * Require user to be logged in
      * 
@@ -87,11 +96,11 @@ final class auth
         // Start session if not already exists
         auth::startSession();
 
+        //========================================
+        // MODUL 8.8 - Redirect if not logged in
+        //========================================
         // Check if user is logged in
         if (empty($_SESSION['uid'])) {
-
-            // Save URL to redirect back after login
-            $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'] ?? '/';
 
             // Redirect to login page
             header('Location: /PHP_Chatbot/public/auth/login.php');
@@ -142,6 +151,9 @@ final class auth
         return $base . $sanitized;
     }
 
+    //========================================
+    // MODUL 8.9 - Logout
+    //========================================
     /**
      * Log out current user and destroy session
      */
@@ -155,6 +167,9 @@ final class auth
         session_destroy();
     }
 
+    //========================================
+    // MODUL 8.10 - Lockout on 3 attempts
+    //========================================
     /**
      * Check if user is locked out due to too many login attempts
      * 
@@ -177,6 +192,9 @@ final class auth
         return ($result['attempt_count'] ?? 0) >= self::MAX_LOGIN_ATTEMPTS;
     }
 
+    //========================================
+    // MODUL 8.10 - Lockout on 3 attempts
+    //========================================
     /**
      * Record every failed login
      * 
@@ -222,6 +240,9 @@ final class auth
             $stmt->execute([self::LOCKOUT_DURATION_MINUTES]);
     }
 
+    //========================================
+    // MODUL 8.10 - Lockout on 3 attempts
+    //========================================
     /**
      * Get remaining login attempts before lockout
      * 

@@ -9,6 +9,9 @@ auth::startSession();
 // Store username before logout
 $username = $_SESSION['username'] ?? 'User';
 
+//========================================
+// MODUL 8.9 - Logout
+//========================================
 // Perform logout
 auth::logout();
 

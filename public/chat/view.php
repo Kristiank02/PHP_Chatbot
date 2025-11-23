@@ -7,6 +7,9 @@ require_once __DIR__ . '/../../src/db.php';
 require_once __DIR__ . '/../../src/conversations.php';
 require_once __DIR__ . '/../../src/messages.php';
 
+//========================================
+// MODUL 8.5 - Protected pages
+//========================================
 $userId = auth::requireLogin();
 $conversationId = (int)($_GET['id'] ?? 0);
 
@@ -78,6 +81,9 @@ $adminDashboardUrl = auth::publicPath('admin/dashboard.php');
         <div class="chat__user-menu">
           <button type="button" class="chat__user" aria-haspopup="true" aria-label="<?= htmlspecialchars($profileLabel, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
             <span aria-hidden="true">👤</span>
+            <!--========================================
+            // MODUL 8.7 - Show name
+            //========================================-->
             <span class="chat__user-name"><?= htmlspecialchars($currentUser['username'] ?? $currentUser['email'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></span>
           </button>
           <div class="chat__user-dropdown">
