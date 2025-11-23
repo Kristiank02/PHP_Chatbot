@@ -2,19 +2,6 @@
    PROFILE PAGE STYLES
    ============================================ */
 
-/* Override main-compiled.css body and html settings */
-html,
-body {
-  overflow: auto !important;
-  height: auto !important;
-  min-height: 100vh !important;
-}
-
-/* Hide scanline effect on profile page */
-body::before {
-  display: none !important;
-}
-
 /* Profile container */
 .profile-container {
   max-width: 900px;
@@ -198,48 +185,7 @@ body::before {
   align-items: center;
 }
 
-.btn {
-  padding: var(--space-md) var(--space-xl);
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  color: var(--text-primary);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-base);
-  font-weight: 600;
-  cursor: pointer;
-  transition: all var(--transition-base);
-  text-decoration: none;
-  display: inline-block;
-  text-align: center;
-}
-
-.btn:hover {
-  border-color: var(--accent-primary);
-  box-shadow: var(--shadow-glow);
-}
-
-.btn-primary {
-  background: rgba(51, 255, 136, 0.1);
-  border-color: var(--accent-primary);
-  color: var(--accent-primary);
-}
-
-.btn-primary:hover {
-  background: rgba(51, 255, 136, 0.2);
-  box-shadow: var(--shadow-glow-strong);
-}
-
-.btn-secondary {
-  background: transparent;
-  border-color: var(--border-accent);
-  color: var(--text-muted);
-}
-
-.btn-secondary:hover {
-  border-color: var(--accent-secondary);
-  color: var(--accent-secondary);
-}
+/* Button styles are inherited from components/buttons.css */
 
 /* Responsive */
 @media (max-width: 768px) {

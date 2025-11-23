@@ -8,11 +8,15 @@ $userId = auth::requireLogin();
 $currentUser = auth::getCurrentUser();
 $pdo = db::pdo();
 
+//===============\\
+//---Modul 7.4---\\
+//===============\\
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $selectedPreferences = $_POST['preferences'] ?? [];
 
     try {
+        // Starts transaction
         $pdo->beginTransaction();
 
         // Delete existing preferences
@@ -27,15 +31,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
+        // "Permanently" saves changes
         $pdo->commit();
         $successMessage = 'Preferences saved!';
     } catch (Exception $e) {
+        // Reverts all changes since transaction was started if exception is thrown
         $pdo->rollBack();
         $errorMessage = 'Error saving preferences: ' . $e->getMessage();
     }
 }
 
-// Get all preferences
+// Get all preferences from db
 $stmt = $pdo->query('SELECT id, name FROM preferences ORDER BY name');
 $allPreferences = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -58,7 +64,7 @@ $logoutUrl = auth::publicPath('logout.php');
     <link rel="stylesheet" href="assets/css/main-compiled.css">
     <link rel="stylesheet" href="assets/css/profile.css">
 </head>
-<body>
+<body class="page-scrollable">
     <div class="profile-container">
         <div class="profile-header">
             <h1>My Profile</h1>

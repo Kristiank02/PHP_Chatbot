@@ -7,114 +7,103 @@ require_once __DIR__ . '/../../src/db.php';
 // Require admin role
 auth::requireRole('admin');
 
+//========================================
+// MODUL 7.1 - Database connection
+//========================================
 $pdo = db::pdo();
 
-// Hent sortering og filtrering fra query params
-$sortBy = $_GET['sort'] ?? 'created_at';
-$sortOrder = $_GET['order'] ?? 'DESC';
-$filterPreference = $_GET['preference'] ?? '';
-$minPreferences = isset($_GET['min_prefs']) ? (int)$_GET['min_prefs'] : 0;
-$filterRecentUsers = isset($_GET['recent_only']) ? (bool)$_GET['recent_only'] : false;
+//========================================
+// MODUL 7.4/7.5 - Filter parameters
+//========================================
+$filterRecentUsers = isset($_GET['recent_only']);
+$filterPreferenceId = isset($_GET['preference_id']) ? (int)$_GET['preference_id'] : null;
 
-// Valider sorteringskolonner
-$allowedSortColumns = ['email', 'role', 'created_at', 'preference_count'];
-if (!in_array($sortBy, $allowedSortColumns)) {
-    $sortBy = 'created_at';
+//========================================
+// MODUL 7.1/5 - Get users from db
+//========================================
+//  1: SELECT with minimum 5 columns (id, email, role, created_at, preference_count)
+//  5: Group using GROUP_CONCAT To show preferances per user
+
+if ($filterPreferenceId) {
+    // Filter by specific preference
+    $stmt = $pdo->prepare('
+        SELECT
+            u.id,
+            u.email,
+            u.role,
+            u.created_at,
+            COUNT(DISTINCT up.preference_id) as preference_count,
+            GROUP_CONCAT(DISTINCT p.name ORDER BY p.name SEPARATOR ", ") as preferences
+        FROM users u
+        INNER JOIN user_preferences up_filter ON u.id = up_filter.user_id AND up_filter.preference_id = ?
+        LEFT JOIN user_preferences up ON u.id = up.user_id
+        LEFT JOIN preferences p ON up.preference_id = p.id
+        GROUP BY u.id, u.email, u.role, u.created_at
+        ORDER BY u.created_at DESC
+    ');
+    $stmt->execute([$filterPreferenceId]);
+    $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} elseif ($filterRecentUsers) {
+    //  4: Filter users by last month
+    $sql = '
+        SELECT
+            u.id,
+            u.email,
+            u.role,
+            u.created_at,
+            COUNT(DISTINCT up.preference_id) as preference_count,
+            GROUP_CONCAT(DISTINCT p.name ORDER BY p.name SEPARATOR ", ") as preferences
+        FROM users u
+        LEFT JOIN user_preferences up ON u.id = up.user_id
+        LEFT JOIN preferences p ON up.preference_id = p.id
+        WHERE u.created_at >= DATE_SUB(NOW(), INTERVAL 1 MONTH)
+        GROUP BY u.id, u.email, u.role, u.created_at
+        ORDER BY u.created_at DESC
+    ';
+    $users = $pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+} else {
+    // Fetch all users
+    $sql = '
+        SELECT
+            u.id,
+            u.email,
+            u.role,
+            u.created_at,
+            COUNT(DISTINCT up.preference_id) as preference_count,
+            GROUP_CONCAT(DISTINCT p.name ORDER BY p.name SEPARATOR ", ") as preferences
+        FROM users u
+        LEFT JOIN user_preferences up ON u.id = up.user_id
+        LEFT JOIN preferences p ON up.preference_id = p.id
+        GROUP BY u.id, u.email, u.role, u.created_at
+        ORDER BY u.created_at DESC
+    ';
+    $users = $pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
 }
 
-// Valider sorteringsrekkefølge
-$sortOrder = strtoupper($sortOrder) === 'ASC' ? 'ASC' : 'DESC';
-
-// Bygg SQL-spørring
-$sql = '
-    SELECT 
-        u.id, 
-        u.email, 
-        u.role, 
-        u.created_at,
-        COUNT(DISTINCT up.preference_id) as preference_count,
-        GROUP_CONCAT(DISTINCT p.name ORDER BY p.name SEPARATOR ", ") as preferences
-    FROM users u
-    LEFT JOIN user_preferences up ON u.id = up.user_id
-    LEFT JOIN preferences p ON up.preference_id = p.id
-';
-
-$params = [];
-$whereConditions = [];
-
-// Legg til filtrering etter preferanse hvis nødvendig
-if ($filterPreference) {
-    $whereConditions[] = 'u.id IN (
-            SELECT up2.user_id
-            FROM user_preferences up2
-            JOIN preferences p2 ON up2.preference_id = p2.id
-            WHERE p2.name = ?
-        )';
-    $params[] = $filterPreference;
-}
-
-// Legg til filtrering for brukere registrert siste måned
-if ($filterRecentUsers) {
-    $whereConditions[] = 'u.created_at >= DATE_SUB(NOW(), INTERVAL 1 MONTH)';
-}
-
-// Kombiner WHERE-betingelser
-if (!empty($whereConditions)) {
-    $sql .= ' WHERE ' . implode(' AND ', $whereConditions);
-}
-
-$sql .= ' GROUP BY u.id, u.email, u.role, u.created_at';
-
-// Legg til filter for minimum antall preferanser
-if ($minPreferences > 0) {
-    $sql .= ' HAVING preference_count >= ' . $minPreferences;
-}
-
-// Legg til sortering
-$sql .= " ORDER BY {$sortBy} {$sortOrder}";
-
-$stmt = $pdo->prepare($sql);
-$stmt->execute($params);
-$users = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-// Hent alle unike preferanser for filterdropdown
-$prefStmt = $pdo->query('SELECT DISTINCT name FROM preferences ORDER BY name');
-$allPreferences = $prefStmt->fetchAll(PDO::FETCH_COLUMN);
-
-// Hent statistikk - gruppering per preferanse
-$statsStmt = $pdo->query('
-    SELECT 
+//========================================
+// MODUL 7.5 - Get all preferences for filtering
+//========================================
+$allPreferencesStmt = $pdo->query('
+    SELECT
+        p.id,
         p.name,
         COUNT(DISTINCT up.user_id) as user_count
     FROM preferences p
     LEFT JOIN user_preferences up ON p.id = up.preference_id
     GROUP BY p.id, p.name
-    ORDER BY user_count DESC, p.name
+    ORDER BY p.name
 ');
-$preferenceStats = $statsStmt->fetchAll(PDO::FETCH_ASSOC);
+$allPreferences = $allPreferencesStmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Hent antall brukere registrert siste måned
+//========================================
+// MODUL 7.4 - Count new users
+//========================================
 $recentUsersStmt = $pdo->query('
     SELECT COUNT(*) as recent_user_count
     FROM users
     WHERE created_at >= DATE_SUB(NOW(), INTERVAL 1 MONTH)
 ');
 $recentUserCount = $recentUsersStmt->fetch(PDO::FETCH_ASSOC)['recent_user_count'];
-
-// Funksjon for å lage sorteringslenke
-function sortLink(string $column, string $currentSort, string $currentOrder, string $label): string {
-    $newOrder = ($currentSort === $column && $currentOrder === 'ASC') ? 'DESC' : 'ASC';
-    $icon = '';
-    if ($currentSort === $column) {
-        $icon = $currentOrder === 'ASC' ? ' ▲' : ' ▼';
-    }
-    
-    $queryParams = $_GET;
-    $queryParams['sort'] = $column;
-    $queryParams['order'] = $newOrder;
-    
-    return '<a href="?' . http_build_query($queryParams) . '">' . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . $icon . '</a>';
-}
 
 // Get current user
 $currentUser = auth::getCurrentUser();
@@ -124,11 +113,11 @@ $currentUser = auth::getCurrentUser();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
+    <title>Admin Dashboard - Modul 7</title>
     <link rel="stylesheet" href="../assets/css/main-compiled.css">
     <link rel="stylesheet" href="../assets/css/admin.css">
 </head>
-<body>
+<body class="page-scrollable">
     <div class="admin-container">
         <div class="admin-header">
             <h1>Admin Dashboard</h1>
@@ -139,116 +128,73 @@ $currentUser = auth::getCurrentUser();
             </div>
         </div>
 
+        <!-- MODUL 7.4 - Statistics -->
         <div class="stats-grid">
             <div class="stat-card">
                 <h4>Total Users</h4>
                 <div class="stat-value"><?= count($users) ?></div>
             </div>
             <div class="stat-card">
-                <h4>Users with Preferences</h4>
-                <div class="stat-value">
-                    <?= count(array_filter($users, fn($u) => $u['preference_count'] > 0)) ?>
-                </div>
-            </div>
-            <div class="stat-card">
                 <h4>New Users (Last Month)</h4>
                 <div class="stat-value"><?= $recentUserCount ?></div>
             </div>
-            <div class="stat-card">
-                <h4>Total Preferences</h4>
-                <div class="stat-value"><?= count($allPreferences) ?></div>
-            </div>
         </div>
 
-        <div class="stats-section">
-            <h3>Users by Preference</h3>
-            <div class="stats-list">
-                <?php foreach ($preferenceStats as $stat): ?>
-                    <div class="stats-item">
-                        <span class="stats-item-name"><?= htmlspecialchars($stat['name'], ENT_QUOTES, 'UTF-8') ?></span>
-                        <span class="stats-item-count"><?= $stat['user_count'] ?> users</span>
-                    </div>
+        <!-- MODUL 7.5 - Preference Filters -->
+        <div class="filters">
+            <h3>Filter by Preference</h3>
+            <div class="preference-filters">
+                <a href="dashboard.php" class="preference-filter-btn <?= !$filterPreferenceId ? 'active' : '' ?>">
+                    All Users
+                </a>
+                <?php foreach ($allPreferences as $pref): ?>
+                    <a href="dashboard.php?preference_id=<?= $pref['id'] ?>"
+                       class="preference-filter-btn <?= $filterPreferenceId == $pref['id'] ? 'active' : '' ?>">
+                        <?= htmlspecialchars($pref['name'], ENT_QUOTES, 'UTF-8') ?>
+                        <span class="filter-count">(<?= $pref['user_count'] ?>)</span>
+                    </a>
                 <?php endforeach; ?>
             </div>
         </div>
 
+        <!-- MODUL 7.4 - Filter date -->
         <div class="filters">
-            <h3>Filters & Sorting</h3>
+            <h3> Date Filter</h3>
             <form method="GET" class="filter-row">
-                <div class="filter-group">
-                    <label for="preference">Filter by preference:</label>
-                    <select name="preference" id="preference">
-                        <option value="">All preferences</option>
-                        <?php foreach ($allPreferences as $pref): ?>
-                            <option value="<?= htmlspecialchars($pref, ENT_QUOTES, 'UTF-8') ?>" 
-                                    <?= $filterPreference === $pref ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($pref, ENT_QUOTES, 'UTF-8') ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-
-                <div class="filter-group">
-                    <label for="min_prefs">Minimum preferences:</label>
-                    <input type="number" name="min_prefs" id="min_prefs" min="0" max="20"
-                           value="<?= $minPreferences ?>" style="width: 100px;">
-                </div>
-
                 <div class="filter-group">
                     <label for="recent_only">
                         <input type="checkbox" name="recent_only" id="recent_only" value="1"
                                <?= $filterRecentUsers ? 'checked' : '' ?>>
-                        Only users from last month
+                        Only show users registered in the last month
                     </label>
                 </div>
-
                 <div class="filter-group">
-                    <label for="sort">Sort by:</label>
-                    <select name="sort" id="sort">
-                        <option value="created_at" <?= $sortBy === 'created_at' ? 'selected' : '' ?>>Created Date</option>
-                        <option value="email" <?= $sortBy === 'email' ? 'selected' : '' ?>>Email</option>
-                        <option value="role" <?= $sortBy === 'role' ? 'selected' : '' ?>>Role</option>
-                        <option value="preference_count" <?= $sortBy === 'preference_count' ? 'selected' : '' ?>>Preference Count</option>
-                    </select>
+                    <button type="submit" class="btn-filter">Apply Filter</button>
                 </div>
-
                 <div class="filter-group">
-                    <label for="order">Order:</label>
-                    <select name="order" id="order">
-                        <option value="ASC" <?= $sortOrder === 'ASC' ? 'selected' : '' ?>>Ascending</option>
-                        <option value="DESC" <?= $sortOrder === 'DESC' ? 'selected' : '' ?>>Descending</option>
-                    </select>
-                </div>
-
-                <div class="filter-group">
-                    <label>&nbsp;</label>
-                    <button type="submit" class="btn-filter">Apply</button>
-                </div>
-
-                <div class="filter-group">
-                    <label>&nbsp;</label>
-                    <a href="dashboard.php" class="btn-reset">Reset</a>
+                    <a href="dashboard.php" class="btn-reset">Show All Users</a>
                 </div>
             </form>
         </div>
 
-        <h2>All Users (<?= count($users) ?>)</h2>
+        <!-- MODUL 7.1 - HTML-table with users -->
+        <h2> User List (<?= count($users) ?> users)</h2>
         <table>
             <thead>
                 <tr>
-                    <th><?= sortLink('email', $sortBy, $sortOrder, 'ID') ?></th>
-                    <th><?= sortLink('email', $sortBy, $sortOrder, 'Email') ?></th>
-                    <th><?= sortLink('role', $sortBy, $sortOrder, 'Role') ?></th>
-                    <th><?= sortLink('created_at', $sortBy, $sortOrder, 'Created') ?></th>
-                    <th><?= sortLink('preference_count', $sortBy, $sortOrder, 'Preferences') ?></th>
-                    <th>Interests</th>
+                    <th>ID</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Created Date</th>
+                    <th>Preference Count</th>
+                    <th>Preferences</th>
                 </tr>
             </thead>
             <tbody>
                 <?php if (empty($users)): ?>
                     <tr>
                         <td colspan="6" style="text-align: center; padding: 2rem; color: #666;">
-                            No users found with selected filters.
+                            No users found.
                         </td>
                     </tr>
                 <?php else: ?>

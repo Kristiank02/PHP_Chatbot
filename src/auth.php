@@ -16,6 +16,9 @@ final class auth
     // How long lockout lasts (in minutes)
     private const LOCKOUT_DURATION_MINUTES = 60;
 
+    //===============\\
+    //---Modul 7.2---\\
+    //===============\\
     /**
      * Register new account
      * 
@@ -242,6 +245,9 @@ final class auth
         return max(0, self::MAX_LOGIN_ATTEMPTS - $attemptCount);
     }
 
+    //===============\\
+    //---Modul 7.1---\\
+    //===============\\
     /**
      * Require user to have a specific role
      * 
