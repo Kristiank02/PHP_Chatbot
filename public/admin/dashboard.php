@@ -14,6 +14,7 @@ $sortBy = $_GET['sort'] ?? 'created_at';
 $sortOrder = $_GET['order'] ?? 'DESC';
 $filterPreference = $_GET['preference'] ?? '';
 $minPreferences = isset($_GET['min_prefs']) ? (int)$_GET['min_prefs'] : 0;
+$filterRecentUsers = isset($_GET['recent_only']) ? (bool)$_GET['recent_only'] : false;
 
 // Valider sorteringskolonner
 $allowedSortColumns = ['email', 'role', 'created_at', 'preference_count'];
@@ -39,18 +40,27 @@ $sql = '
 ';
 
 $params = [];
+$whereConditions = [];
 
-// Legg til filtrering hvis nødvendig
+// Legg til filtrering etter preferanse hvis nødvendig
 if ($filterPreference) {
-    $sql .= '
-        WHERE u.id IN (
-            SELECT up2.user_id 
+    $whereConditions[] = 'u.id IN (
+            SELECT up2.user_id
             FROM user_preferences up2
             JOIN preferences p2 ON up2.preference_id = p2.id
             WHERE p2.name = ?
-        )
-    ';
+        )';
     $params[] = $filterPreference;
+}
+
+// Legg til filtrering for brukere registrert siste måned
+if ($filterRecentUsers) {
+    $whereConditions[] = 'u.created_at >= DATE_SUB(NOW(), INTERVAL 1 MONTH)';
+}
+
+// Kombiner WHERE-betingelser
+if (!empty($whereConditions)) {
+    $sql .= ' WHERE ' . implode(' AND ', $whereConditions);
 }
 
 $sql .= ' GROUP BY u.id, u.email, u.role, u.created_at';
@@ -82,6 +92,14 @@ $statsStmt = $pdo->query('
     ORDER BY user_count DESC, p.name
 ');
 $preferenceStats = $statsStmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Hent antall brukere registrert siste måned
+$recentUsersStmt = $pdo->query('
+    SELECT COUNT(*) as recent_user_count
+    FROM users
+    WHERE created_at >= DATE_SUB(NOW(), INTERVAL 1 MONTH)
+');
+$recentUserCount = $recentUsersStmt->fetch(PDO::FETCH_ASSOC)['recent_user_count'];
 
 // Funksjon for å lage sorteringslenke
 function sortLink(string $column, string $currentSort, string $currentOrder, string $label): string {
@@ -133,6 +151,10 @@ $currentUser = auth::getCurrentUser();
                 </div>
             </div>
             <div class="stat-card">
+                <h4>New Users (Last Month)</h4>
+                <div class="stat-value"><?= $recentUserCount ?></div>
+            </div>
+            <div class="stat-card">
                 <h4>Total Preferences</h4>
                 <div class="stat-value"><?= count($allPreferences) ?></div>
             </div>
@@ -170,6 +192,14 @@ $currentUser = auth::getCurrentUser();
                     <label for="min_prefs">Minimum preferences:</label>
                     <input type="number" name="min_prefs" id="min_prefs" min="0" max="20"
                            value="<?= $minPreferences ?>" style="width: 100px;">
+                </div>
+
+                <div class="filter-group">
+                    <label for="recent_only">
+                        <input type="checkbox" name="recent_only" id="recent_only" value="1"
+                               <?= $filterRecentUsers ? 'checked' : '' ?>>
+                        Only users from last month
+                    </label>
                 </div>
 
                 <div class="filter-group">
