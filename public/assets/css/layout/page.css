@@ -2,70 +2,6 @@
    PAGE LAYOUT UTILITIES
    ============================================ */
 
-/* Container */
-.container {
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 var(--space-lg);
-}
-
-.container--sm {
-  max-width: 640px;
-}
-
-.container--md {
-  max-width: 768px;
-}
-
-.container--lg {
-  max-width: 1024px;
-}
-
-/* Section */
-.section {
-  padding: var(--space-2xl) 0;
-}
-
-.section--sm {
-  padding: var(--space-xl) 0;
-}
-
-.section--lg {
-  padding: 48px 0;
-}
-
-/* Card */
-.card {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  padding: var(--space-xl);
-  box-shadow: var(--shadow-md);
-}
-
-.card__header {
-  margin-bottom: var(--space-lg);
-  padding-bottom: var(--space-md);
-  border-bottom: 1px solid var(--border-color);
-}
-
-.card__title {
-  font-size: var(--font-size-xl);
-  color: var(--accent-primary);
-  margin: 0;
-}
-
-.card__body {
-  color: var(--text-primary);
-}
-
-.card__footer {
-  margin-top: var(--space-lg);
-  padding-top: var(--space-md);
-  border-top: 1px solid var(--border-color);
-}
-
 /* Divider */
 .divider {
   height: 1px;
@@ -106,26 +42,4 @@
 
 .flex--column {
   flex-direction: column;
-}
-
-/* Grid utilities */
-.grid {
-  display: grid;
-}
-
-.grid--2 {
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--space-lg);
-}
-
-.grid--3 {
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--space-lg);
-}
-
-@media (max-width: 768px) {
-  .grid--2,
-  .grid--3 {
-    grid-template-columns: 1fr;
-  }
 }

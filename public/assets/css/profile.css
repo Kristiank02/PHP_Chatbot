@@ -7,8 +7,6 @@
   max-width: 900px;
   margin: 0 auto;
   padding: var(--space-xl);
-  min-height: 100vh;
-  overflow-y: auto;
 }
 
 /* Profile header */

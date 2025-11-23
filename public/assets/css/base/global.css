@@ -10,15 +10,14 @@ body {
 }
 
 /* Override for scrollable pages (profile, admin) */
-body.page-scrollable,
-body.page-scrollable html {
-  overflow: auto;
-  height: auto;
+body.page-scrollable {
+  overflow: auto !important;
+  height: auto !important;
   min-height: 100vh;
 }
 
 body.page-scrollable::before {
-  display: none;
+  display: none !important;
 }
 
 /* Subtle scanline effect overlay */
