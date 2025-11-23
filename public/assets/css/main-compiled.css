@@ -193,6 +193,7 @@ body {
 }
 
 /* Override for scrollable pages (profile, admin) */
+html.page-scrollable,
 body.page-scrollable {
   overflow: auto !important;
   height: auto !important;

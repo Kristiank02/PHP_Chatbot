@@ -109,13 +109,13 @@ $recentUserCount = $recentUsersStmt->fetch(PDO::FETCH_ASSOC)['recent_user_count'
 $currentUser = auth::getCurrentUser();
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="page-scrollable">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - Modul 7</title>
-    <link rel="stylesheet" href="../assets/css/main-compiled.css">
-    <link rel="stylesheet" href="../assets/css/admin.css">
+    <link rel="stylesheet" href="../assets/css/main-compiled.css?v=<?= time() ?>">
+    <link rel="stylesheet" href="../assets/css/admin.css?v=<?= time() ?>">
 </head>
 <body class="page-scrollable">
     <div class="admin-container">

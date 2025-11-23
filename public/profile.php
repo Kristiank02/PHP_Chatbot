@@ -56,13 +56,13 @@ $adminDashboardUrl = auth::publicPath('admin/dashboard.php');
 $logoutUrl = auth::publicPath('logout.php');
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="page-scrollable">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Profile</title>
-    <link rel="stylesheet" href="assets/css/main-compiled.css">
-    <link rel="stylesheet" href="assets/css/profile.css">
+    <link rel="stylesheet" href="assets/css/main-compiled.css?v=<?= time() ?>">
+    <link rel="stylesheet" href="assets/css/profile.css?v=<?= time() ?>">
 </head>
 <body class="page-scrollable">
     <div class="profile-container">
