@@ -10,22 +10,10 @@ require_once __DIR__ . '/../../src/db.php';
 // Require admin role
 auth::requireRole('admin');
 
-//========================================
-// MODUL 7.1 - Database connection
-//========================================
 $pdo = db::pdo();
 
-//========================================
-// MODUL 7.4/7.5 - Filter parameters
-//========================================
 $filterRecentUsers = isset($_GET['recent_only']);
 $filterPreferenceId = isset($_GET['preference_id']) ? (int)$_GET['preference_id'] : null;
-
-//========================================
-// MODUL 7.1/5 - Get users from db
-//========================================
-//  1: SELECT with minimum 5 columns (id, email, role, created_at, preference_count)
-//  5: Group using GROUP_CONCAT To show preferances per user
 
 if ($filterPreferenceId) {
     // Filter by specific preference
@@ -83,9 +71,6 @@ if ($filterPreferenceId) {
     $users = $pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
 }
 
-//========================================
-// MODUL 7.5 - Get all preferences for filtering
-//========================================
 $allPreferencesStmt = $pdo->query('
     SELECT
         p.id,
@@ -98,9 +83,6 @@ $allPreferencesStmt = $pdo->query('
 ');
 $allPreferences = $allPreferencesStmt->fetchAll(PDO::FETCH_ASSOC);
 
-//========================================
-// MODUL 7.4 - Count new users
-//========================================
 $recentUsersStmt = $pdo->query('
     SELECT COUNT(*) as recent_user_count
     FROM users
@@ -131,7 +113,6 @@ $currentUser = auth::getCurrentUser();
             </div>
         </div>
 
-        <!-- MODUL 7.4 - Statistics -->
         <div class="stats-grid">
             <div class="stat-card">
                 <h4>Total Users</h4>
@@ -143,7 +124,6 @@ $currentUser = auth::getCurrentUser();
             </div>
         </div>
 
-        <!-- MODUL 7.5 - Preference Filters -->
         <div class="filters">
             <h3>Filter by Preference</h3>
             <div class="preference-filters">
@@ -160,7 +140,6 @@ $currentUser = auth::getCurrentUser();
             </div>
         </div>
 
-        <!-- MODUL 7.4 - Filter date -->
         <div class="filters">
             <h3> Date Filter</h3>
             <form method="GET" class="filter-row">
@@ -180,7 +159,6 @@ $currentUser = auth::getCurrentUser();
             </form>
         </div>
 
-        <!-- MODUL 7.1 - HTML-table with users -->
         <h2> User List (<?= count($users) ?> users)</h2>
         <table>
             <thead>

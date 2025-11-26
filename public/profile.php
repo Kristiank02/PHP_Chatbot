@@ -11,9 +11,6 @@ $userId = auth::requireLogin();
 $currentUser = auth::getCurrentUser();
 $pdo = db::pdo();
 
-//===============\\
-//---Modul 7.4---\\
-//===============\\
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $selectedPreferences = $_POST['preferences'] ?? [];

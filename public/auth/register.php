@@ -13,9 +13,6 @@ auth::startSession();
 $errors = [];       // Collects error messages
 $oldEmail = '';     // Field remains filled out even after errors
 
-//===============\\
-//---Modul 7.2---\\
-//===============\\
 // Checks request and runs if POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
