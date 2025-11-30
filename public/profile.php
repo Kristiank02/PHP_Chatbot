@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../src/auth.php';
 require_once __DIR__ . '/../src/db.php';
+require_once __DIR__ . '/../src/UrlHelper.php';
 
 //========================================
 // MODUL 8.5 - Protected pages
@@ -52,8 +53,8 @@ $userPreferenceIds = array_column($stmt->fetchAll(PDO::FETCH_ASSOC), 'preference
 
 // Check if user is admin
 $isAdmin = $currentUser && $currentUser['role'] === 'admin';
-$adminDashboardUrl = auth::publicPath('admin/dashboard.php');
-$logoutUrl = auth::publicPath('logout.php');
+$adminDashboardUrl = UrlHelper::publicPath('admin/dashboard.php');
+$logoutUrl = UrlHelper::publicPath('logout.php');
 ?>
 <!DOCTYPE html>
 <html lang="en" class="page-scrollable">

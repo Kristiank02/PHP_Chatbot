@@ -5,6 +5,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../../src/auth.php';
 require_once __DIR__ . '/../../src/db.php';
 require_once __DIR__ . '/../../src/conversations.php';
+require_once __DIR__ . '/../../src/LoginAttemptTracker.php';
 
 //========================================
 // MODUL 8.1 - Login Page
@@ -53,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // MODUL 8.10 - Lockout on 3 attempts
     //========================================
     // Check if user is locked out
-    if (auth::isLockedOut($identifier)) {
+    if (LoginAttemptTracker::isLockedOut($identifier)) {
       throw new RuntimeException(
         'Account temporarily locked due to too many failed login attempts. ' .
         'Please try again in 60 minutes.'
@@ -76,10 +77,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!$user || !password_verify($password, (string)$user['password_hash'])) {
       //Record failed attempt
-      auth::recordFailedAttempt($identifier);
+      LoginAttemptTracker::recordFailedAttempt($identifier);
 
       // Show remaining attempts
-      $remaining = auth::getRemainingAttempts($identifier);
+      $remaining = LoginAttemptTracker::getRemainingAttempts($identifier);
       if ($remaining > 0) {
         throw new RuntimeException(
           "Invalid email/username or password. You have {$remaining} attempts remaining."
@@ -90,7 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Successful login - clear failed attempts
-    auth::clearFailedAttempts($identifier);
+    LoginAttemptTracker::clearFailedAttempts($identifier);
 
     // Store user data in session
     $_SESSION['uid'] = (int)$user['id'];
