@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/Validator.php';
 require_once __DIR__ . '/db.php';
-require_once __DIR__ . '/Schema.php';
 
 /**
  * Authentication and authorization helper class
@@ -33,9 +32,6 @@ final class auth
      */
     public static function register(string $email, string $password): int
     {
-        // Make sure table exists
-        Schema::initialize();
-
         // Remove extra whitespace from email
         $email = trim($email);
         
