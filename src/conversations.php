@@ -14,9 +14,6 @@ final class Conversations {
      */
     public static function create(?int $userId): int 
     {
-        // Make sure table exists
-        Schema::initialize();
-
         // Database connection
         $pdo = db::pdo();
 
@@ -39,9 +36,6 @@ final class Conversations {
      */
     public static function find(int $conversationId): ?array
     {
-        // Make sure table exists
-        Schema::initialize();
-
         // Database connection
         $pdo = db::pdo();
 
@@ -99,9 +93,6 @@ final class Conversations {
      */
     public static function listForUser(int $userId): array
     {
-        // Make sure table exists
-        Schema::initialize();
-
         // Database connection
         $pdo = db::pdo();
 
@@ -142,9 +133,6 @@ final class Conversations {
      */
     public static function latestIdForUser(int $userId): ?int
     {
-        // Make sure table exists
-        Schema::initialize();
-
         // Database connection
         $pdo = db::pdo();
 

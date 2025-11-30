@@ -22,9 +22,6 @@ final class Messages
      */
     public static function add(int $conversationId, string $role, string $content): int
     {
-        // Make sure the messages table exists
-        Schema::initialize();
-
         // Validate the role, and default to 'user' if role is not valid
         $validRole = $role;
         $isRoleValid = in_array($role, self::ALLOWED_ROLES, true);
@@ -61,9 +58,6 @@ final class Messages
      */
     public static function listForConversation(int $conversationId): array
     {
-        // Make sure message table exists
-        Schema::initialize();
-
         // Database connection
         $pdo = db::pdo();
 
@@ -98,9 +92,6 @@ final class Messages
      */
     public static function historyForAI(int $conversationId, int $limit = 12): array
     {
-        // Make sure messages table exists
-        Schema::initialize();
-
         // Database connection
         $pdo = db::pdo();
 
@@ -160,9 +151,6 @@ final class Messages
      */
     public static function firstUserMessage(int $conversationId): ?string
     {
-        // Make sure the table exists
-        Schema::initialize();
-
         // Database connection
         $pdo = db::pdo();
 
