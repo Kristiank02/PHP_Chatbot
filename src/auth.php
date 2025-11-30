@@ -10,9 +10,6 @@ require_once __DIR__ . '/db.php';
  */
 final class auth
 {
-    //========================================
-    // MODUL 8.10 - Lockout on 3 attempts
-    //========================================
     // How many failed attempts before lockout
     private const MAX_LOGIN_ATTEMPTS = 3;
     // How long lockout lasts (in minutes)
@@ -57,9 +54,6 @@ final class auth
             throw new RuntimeException('Email is already in use');
         }
 
-            //========================================
-            // MODUL 8.11 - Security
-            //========================================
         // Hashing passwords using PASSWORD_DEFAULT
         $hash = password_hash($password, PASSWORD_DEFAULT);
 
@@ -72,9 +66,6 @@ final class auth
         return (int)$pdo->lastInsertId(); 
     }
 
-    //========================================
-    // MODUL 8.6 - Login check
-    //========================================
     /**
      * Require user to be logged in
      * 
@@ -89,9 +80,6 @@ final class auth
         // Start session if not already exists
         auth::startSession();
 
-        //========================================
-        // MODUL 8.8 - Redirect if not logged in
-        //========================================
         // Check if user is logged in
         if (empty($_SESSION['uid'])) {
 
@@ -194,5 +182,24 @@ final class auth
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
         return $user ?: null;
+    }
+
+    /**
+     * Returns most recent conversation on login
+     * 
+     * @param int $userId 
+     * @return string - Conversation path (most recent)
+     */
+    function defaultConversationRedirect(int $userId): string
+    {
+        // Uses latestIdForUser from Conversations class to determine most recent conversation id
+        $conversationId = Conversations::latestIdForUser($userId);
+        // If there are no conversations, create new one
+        if ($conversationId === null) {
+            $conversationId = Conversations::create($userId);
+        }
+
+        // Returns conversation path
+        return '/PHP_Chatbot/public/chat/view.php?id=' . $conversationId;
     }
 }

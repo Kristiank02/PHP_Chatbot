@@ -26,8 +26,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['uid'] = $userId;
 
         // Start a first conversation and redirect to it
-        $conversationId = Conversations::create($userId);
-        header('Location: /PHP_Chatbot/public/chat/view.php?id=' . $conversationId);
+        $redirectUrl = auth::getDefaultConversationUrl($userId);
+        header('Location: ' . $redirectUrl);
         exit();
     } catch (Throwable $exception) {            
         $errors[] = $exception->getMessage();   // Collects exceptions and adds to list of errors

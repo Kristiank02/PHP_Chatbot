@@ -23,8 +23,8 @@ class Validator
     {
         $errors = [];
 
-        if (strlen($password) < 8) {
-            $errors[] = "Password must be at least 8 characters long";
+        if (strlen($password) < 9) {
+            $errors[] = "Password must be at least 9 characters long";
         }
         if (!preg_match('/[A-ZÆØÅ]/', $password)) {
             $errors[] = "Password must contain at least one uppercase letter";

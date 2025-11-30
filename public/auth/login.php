@@ -7,29 +7,6 @@ require_once __DIR__ . '/../../src/db.php';
 require_once __DIR__ . '/../../src/conversations.php';
 require_once __DIR__ . '/../../src/LoginAttemptTracker.php';
 
-//========================================
-// MODUL 8.1 - Login Page
-//========================================
-/**
- * Returns most recent conversation on login
- * 
- * @param int $userId 
- * @return string - Conversation path (most recent)
- */
-function defaultConversationRedirect(int $userId): string
-{
-    // Uses latestIdForUser from Conversations class to determine most recent conversation id
-    $conversationId = Conversations::latestIdForUser($userId);
-    // If there are no conversations, create new one
-    if ($conversationId === null) {
-        $conversationId = Conversations::create($userId);
-    }
-
-    // Returns conversation path
-    return '/PHP_Chatbot/public/chat/view.php?id=' . $conversationId;
-}
-
-
 // Checks PHP session and runs new session if there are none
 auth::startSession();
 
@@ -50,9 +27,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'] ?? '';
     $oldEmail = $identifier;
 
-    //========================================
-    // MODUL 8.10 - Lockout on 3 attempts
-    //========================================
     // Check if user is locked out
     if (LoginAttemptTracker::isLockedOut($identifier)) {
       throw new RuntimeException(
@@ -64,9 +38,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Database connection
     $pdo = db::pdo();
 
-    //========================================
-    // MODUL 8.2 - Check towards database
-    //========================================
     // Support both emails and username login
     $stmt = $pdo->prepare(
       'SELECT id, password_hash, username, role FROM users
@@ -98,18 +69,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $_SESSION['username'] = $user['username'] ?? $user['email']; // Fallback to email
     $_SESSION['role'] = $user['role'];
 
-    //========================================
-    // MODUL 8.3 - Redirect
-    //========================================
     // Redirect  to previously requested page or the most recent conversation
-    $redirect = $_SESSION['redirect_after_login'] ?? defaultConversationRedirect((int)$user['id']);
+    $redirect = $_SESSION['redirect_after_login'] ?? auth::defaultConversationRedirect((int)$user['id']);
     unset($_SESSION['redirect_after_login']);
 
     header('Location: ' . $redirect);
     exit();
-    //========================================
-    // MODUL 8.4 - Error messages
-    //========================================
+
   } catch (Throwable $exception) {
     $errors[] = $exception->getMessage();
   }
@@ -138,9 +104,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
       <?php endif; ?>
 
-    <!--========================================
-    // MODUL 8.4 - Error messages
-    //========================================-->
       <?php if ($errors): ?>
         <div class="auth-errors">
           <?php foreach ($errors as $message): ?>

@@ -37,6 +37,7 @@ final class LoginAttemptTracker
      * Record every failed login
      * 
      * @param string $identifier - Username or email
+     * @return void
      */
     public static function recordFailedAttempt(string $identifier): void
     {
@@ -57,6 +58,7 @@ final class LoginAttemptTracker
      * Clear failed attempts for user after successful login
      * 
      * @param string $identifier - Username or email
+     * @return void
      */
     public static function clearFailedAttempts(string $identifier): void
     {
