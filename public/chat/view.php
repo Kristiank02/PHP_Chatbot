@@ -6,6 +6,7 @@ require_once __DIR__ . '/../../src/auth.php';
 require_once __DIR__ . '/../../src/db.php';
 require_once __DIR__ . '/../../src/conversations.php';
 require_once __DIR__ . '/../../src/messages.php';
+require_once __DIR__ . '/../../src/UrlHelper.php';
 
 //========================================
 // MODUL 8.5 - Protected pages
@@ -22,12 +23,12 @@ if (!$conversation) {
 $messages = Messages::listForConversation($conversationId);
 $conversationList = $userId ? Conversations::listForUser($userId) : [];
 $profileLabel = 'Account menu';
-$logoutUrl = auth::publicPath('logout.php');
+$logoutUrl = UrlHelper::publicPath('logout.php');
 
 // Get current user to check if admin
 $currentUser = auth::getCurrentUser();
 $isAdmin = $currentUser && $currentUser['role'] === 'admin';
-$adminDashboardUrl = auth::publicPath('admin/dashboard.php');
+$adminDashboardUrl = UrlHelper::publicPath('admin/dashboard.php');
 ?>
 
 <!DOCTYPE html>
@@ -47,7 +48,7 @@ $adminDashboardUrl = auth::publicPath('admin/dashboard.php');
           <h2>Your conversations</h2>
           <span><?= count($conversationList) ?></span>
         </div>
-        <a class="chat-sidebar__new btn btn--primary btn--full" href="<?= htmlspecialchars(auth::publicPath('chat/new.php'), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">+ New conversation</a>
+        <a class="chat-sidebar__new btn btn--primary btn--full" href="<?= htmlspecialchars(UrlHelper::publicPath('chat/new.php'), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">+ New conversation</a>
         <ul class="chat-sidebar__list">
           <?php if ($conversationList): ?>
             <?php foreach ($conversationList as $conversationItem): ?>
@@ -59,7 +60,7 @@ $adminDashboardUrl = auth::publicPath('admin/dashboard.php');
                 $lastLabel = $last ? date('M d H:i', strtotime((string)$last)) : '—';
               ?>
               <li class="chat-sidebar__item <?= $isActive ? 'is-active' : '' ?>">
-                <a href="<?= htmlspecialchars(auth::publicPath('chat/view.php?id=' . (int)$conversationItem['id']), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
+                <a href="<?= htmlspecialchars(UrlHelper::publicPath('chat/view.php?id=' . (int)$conversationItem['id']), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
                   <strong><?= htmlspecialchars($title, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></strong>
                   <small><?= htmlspecialchars("{$count} messages • {$lastLabel}", ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></small>
                 </a>
@@ -87,7 +88,7 @@ $adminDashboardUrl = auth::publicPath('admin/dashboard.php');
             <span class="chat__user-name"><?= htmlspecialchars($currentUser['username'] ?? $currentUser['email'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></span>
           </button>
           <div class="chat__user-dropdown">
-              <a href="<?= htmlspecialchars(auth::publicPath('profile.php'), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">👤 Profile</a>
+              <a href="<?= htmlspecialchars(UrlHelper::publicPath('profile.php'), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">👤 Profile</a>
               <?php if ($isAdmin): ?>
               <a href="<?= htmlspecialchars($adminDashboardUrl, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">🔐 Admin Dashboard</a>
               <?php endif; ?>
