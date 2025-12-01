@@ -35,7 +35,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } catch (Exception $e) {
         // Reverts all changes since transaction was started if exception is thrown
         $pdo->rollBack();
-        $errorMessage = 'Error saving preferences: ' . $e->getMessage();
+            error_log("Profile preferences error: " . $e->getMessage());
+            $errorMessage = 'Error saving preferences. Please try again later.';
     }
 }
 

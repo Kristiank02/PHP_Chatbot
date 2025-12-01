@@ -30,8 +30,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $redirectUrl = auth::getDefaultConversationRedirect($userId);
         header('Location: ' . $redirectUrl);
         exit();
-    } catch (Throwable $exception) {            
-        $errors[] = $exception->getMessage();   // Collects exceptions and adds to list of errors
+    } catch (InvalidArgumentException $e) {
+        // Validation errors - safe to show
+        $errors[] = $e->getMessage();
+    } catch (Throwable $e) {
+        // System errors - log and hide
+        error_log("Registration error: " . $e);
+        $errors[] = 'An error occurred during registration. Please try again later.';
     }
 }
 ?>

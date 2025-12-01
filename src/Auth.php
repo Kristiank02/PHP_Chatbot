@@ -49,7 +49,7 @@ final class auth
         $stmt = $pdo->prepare('SELECT id FROM users WHERE email = ?');
         $stmt->execute([$email]);
         if ($stmt->fetch()) {
-            throw new RuntimeException('Email is already in use');
+            throw new InvalidArgumentException('Email is already in use');
         }
 
         // Hashing passwords using PASSWORD_DEFAULT

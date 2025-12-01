@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Check if user is locked out
     if (LoginAttemptTracker::isLockedOut($identifier)) {
-      throw new RuntimeException(
+      throw new InvalidArgumentException(
         'Account temporarily locked due to too many failed login attempts. ' .
         'Please try again in 60 minutes.'
       );
@@ -53,11 +53,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       // Show remaining attempts
       $remaining = LoginAttemptTracker::getRemainingAttempts($identifier);
       if ($remaining > 0) {
-        throw new RuntimeException(
+        throw new InvalidArgumentException(
           "Invalid email/username or password. You have {$remaining} attempts remaining."
         );
       } else {
-        throw new RuntimeException('Invalid email/username or password.');
+        throw new InvalidArgumentException('Invalid email/username or password.');
       }
     }
 
@@ -76,8 +76,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header('Location: ' . $redirect);
     exit();
 
-  } catch (Throwable $exception) {
-    $errors[] = $exception->getMessage();
+  } catch (InvalidArgumentException $e) {
+    // User validation errors - safe to show
+    $errors[] = $e->getMessage();
+  } catch (Throwable $e) {
+    // System errors - log and hide
+    error_log("Login error: " . $e);
+    $errors[] = 'An error occurred during login. Please try again later.';
   }
 }
 
