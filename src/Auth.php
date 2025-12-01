@@ -10,9 +10,6 @@ require_once __DIR__ . '/Db.php';
  */
 final class auth
 {
-    private const MAX_LOGIN_ATTEMPTS = 3;
-    private const LOCKOUT_DURATION_MINUTES = 60;
-
     /**
      * Register new account
      * 
