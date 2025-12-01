@@ -10,9 +10,7 @@ require_once __DIR__ . '/db.php';
  */
 final class auth
 {
-    // How many failed attempts before lockout
     private const MAX_LOGIN_ATTEMPTS = 3;
-    // How long lockout lasts (in minutes)
     private const LOCKOUT_DURATION_MINUTES = 60;
 
     /**
@@ -47,7 +45,6 @@ final class auth
         $pdo = db::pdo();
 
         // Checks if email is already in database
-        // Prepare statments to prevent SQL injection
         $stmt = $pdo->prepare('SELECT id FROM users WHERE email = ?');
         $stmt->execute([$email]);
         if ($stmt->fetch()) {
@@ -58,7 +55,6 @@ final class auth
         $hash = password_hash($password, PASSWORD_DEFAULT);
 
         // Insert new user in database
-        // Prepare statments to prevent SQL injection
         $stmt = $pdo->prepare('INSERT INTO users (email, password_hash) VALUES (?, ?)');
         $stmt->execute([$email, $hash]);
 
