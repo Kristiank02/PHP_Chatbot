@@ -5,9 +5,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../../src/auth.php';
 require_once __DIR__ . '/../../src/conversations.php';
 
-//========================================
-// MODUL 8.5 - Protected pages
-//========================================
+// Require user to be logged in
 $userId = auth::requireLogin();
 
 // Creates new conversation in database
