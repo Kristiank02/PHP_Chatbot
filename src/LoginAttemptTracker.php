@@ -11,12 +11,12 @@ final class LoginAttemptTracker
     // How long lockout lasts (in minutes)
     private const LOCKOUT_DURATION_MINUTES = 60;
 
-    /**
-    * Get count of recent failed attempts within the lockout window
-    *
-    * Uses DATE_SUB to only count attempts from the last X minutes
-    * Example: If lockout is 60 minutes, only counts attempts from last hour
-    */
+     /**
+     * Get number of failed attempts within the lockout window
+     *
+     * @param string $username
+     * @return int
+     */
     private static function getRecentAttemptCount(string $username): int
     {
     $pdo = db::pdo();
