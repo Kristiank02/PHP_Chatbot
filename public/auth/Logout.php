@@ -7,16 +7,16 @@ require_once __DIR__ . '/../../src/auth.php';
 auth::startSession();
 
 // Store username before logout
-$username = $_SESSION['username'] ?? 'User';
+$currentUser = auth::getCurrentUser();
 
 // Perform logout
 auth::logout();
 
-// Start new session for flash message
+// Start new session for message
 auth::startSession();
 
 // Set logout message
-$_SESSION['logout_message'] = "You have been successfully logged out. See you next time, {$username}!";
+$_SESSION['logout_message'] = "You have been successfully logged out. See you next time, {$currentUser['username']}!";
 
 // Redirect to login page 
 header('Location: /PHP_Chatbot/public/auth/login.php');
