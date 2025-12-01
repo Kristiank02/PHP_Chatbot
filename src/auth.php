@@ -21,11 +21,12 @@ final class auth
      * 
      * @param string $email
      * @param string $password 
+     * @param ?string $username
      * @return int - The new user ID created
      * @throws InvalidArgumentException - If email or password validation fails
      * @throws RuntimeException - If emails is already in use 
      */
-    public static function register(string $email, string $password): int
+    public static function register(string $email, string $password, ?string $username = null): int
     {
         // Remove extra whitespace from email
         $email = trim($email);
@@ -55,8 +56,13 @@ final class auth
         $hash = password_hash($password, PASSWORD_DEFAULT);
 
         // Insert new user in database
-        $stmt = $pdo->prepare('INSERT INTO users (email, password_hash) VALUES (?, ?)');
-        $stmt->execute([$email, $hash]);
+        // Prepare statments to prevent SQL injection
+        if ($username === null) {
+            $username = explode('@', $email)[0];
+        }
+
+        $stmt = $pdo->prepare('INSERT INTO users (email, password_hash, username) VALUES (?, ?, ?)');
+        $stmt->execute([$email, $hash, $username]);
 
         // Returns last user id for easy login after register
         return (int)$pdo->lastInsertId(); 

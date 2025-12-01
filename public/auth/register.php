@@ -18,15 +18,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $email = $_POST['email'] ?? '';
         $password = $_POST['password'] ?? '';
+        $username = explode('@', $email)[0];
         $oldEmail = $email;
 
-        $userId = auth::register($email, $password);
+        $userId = auth::register($email, $password, $username);
 
         // Auto-login new user
         $_SESSION['uid'] = $userId;
 
         // Start a first conversation and redirect to it
-        $redirectUrl = auth::defaultConversationUrl($userId);
+        $redirectUrl = auth::getDefaultConversationRedirect($userId);
         header('Location: ' . $redirectUrl);
         exit();
     } catch (Throwable $exception) {            
