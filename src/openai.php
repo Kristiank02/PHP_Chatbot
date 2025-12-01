@@ -6,17 +6,17 @@ final class OpenAIClient
 {
     // Store the API key
     private string $apiKey;
-    // Which AI model to use
+    // Which AI model
     private string $model;
-    // The OpenAI web adress to use
+    // The OpenAI web address
     private string $baseUrl;
 
 
     /**
      * OpenAI Client setup
      * 
-     * @param string|null $apiKey - ApenAI key (provided by env.) 
-     * @param string $model - AI model to use (gpt-4o-mini)
+     * @param string|null $apiKey - ApenAI key
+     * @param string $model - AI model
      * @param string $baseUrl - OpenAI's web address
      */
     public function __construct(
@@ -24,7 +24,7 @@ final class OpenAIClient
         string $model = 'gpt-4o-mini', 
         string $baseUrl = 'https://api.openai.com/v1')
     {
-        // Get the API key - either from parameter or from .env
+        // Get the API key
         if ($apiKey !== null) {
             $this->apiKey = trim($apiKey);
         } else {
