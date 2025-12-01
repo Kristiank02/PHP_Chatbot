@@ -12,6 +12,23 @@ final class LoginAttemptTracker
     private const LOCKOUT_DURATION_MINUTES = 60;
 
     /**
+    * Get count of recent failed attempts
+    */
+    private static function getRecentAttemptCount(string $username): int
+    {
+    $pdo = db::pdo();
+    $stmt = $pdo->prepare('
+        SELECT COUNT(*) as attempt_count
+        FROM login_attempts
+        WHERE username = ?
+        AND attempt_time > DATE_SUB(NOW(), INTERVAL ? MINUTE)
+    ');
+    $stmt->execute([$username, self::LOCKOUT_DURATION_MINUTES]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    return (int)($result['attempt_count'] ?? 0);
+    }
+
+    /**
      * Check if user is locked out due to too many login attempts
      * 
      * @param string $identifier - Username or email
