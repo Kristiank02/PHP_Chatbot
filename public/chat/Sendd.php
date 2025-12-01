@@ -75,8 +75,10 @@ try {
     respond($conversationId, true, null, $reply, $responseAsJson);
 
 } catch (Throwable $exception) {
+    // Log error to XAMPP
+    error_log("Error in Send.php: " . $exception->getMesssage() . " in " . $exception->getFile() . ":" . $exception->getLine());
     // Send error response if anything goes wrong
-    respond($conversationId, false, $exception->getMessage(), null, $responseAsJson);
+    respond($conversationId, false, 'An error occurred while processing your message. Please try again.', null, $responseAsJson);
 }
 
 /**
