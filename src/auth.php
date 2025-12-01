@@ -29,7 +29,7 @@ final class auth
     public static function register(string $email, string $password, ?string $username = null): int
     {
         // Remove extra whitespace from email
-        $email = trim($email);
+        $email = strtolower(trim($email));
         
         // Validates email format using Validator class
         if (!Validator::validateEmail($email)) {

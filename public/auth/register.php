@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $email = $_POST['email'] ?? '';
         $password = $_POST['password'] ?? '';
-        $username = explode('@', $email)[0];
+        $username = strtolower(explode('@', $email)[0]);
         $oldEmail = $email;
 
         $userId = auth::register($email, $password, $username);
