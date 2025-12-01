@@ -17,20 +17,9 @@ final class LoginAttemptTracker
      * @param string $identifier - Username or email
      * @return bool - True if locked out
      */
-    public static function isLockedOut(string $identifier): bool
+    public static function isLockedOut(string $username): bool
     {
-        $pdo = db::pdo();
-
-        $stmt = $pdo->prepare(
-            'SELECT COUNT(*) as attempt_count
-             FROM login_attempts
-             WHERE username = ?
-             AND attempt_time > DATE_SUB(NOW(), INTERVAL ? MINUTE)'
-        );
-        $stmt->execute([$identifier, self::LOCKOUT_DURATION_MINUTES]);
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        return ($result['attempt_count'] ?? 0) >= self::MAX_LOGIN_ATTEMPTS;
+        return self::getRecentAttemptCount($username) >= self::MAX_LOGIN_ATTEMPTS;
     }
 
     /**
@@ -86,20 +75,10 @@ final class LoginAttemptTracker
      * @param string $identifier - Username or email
      * @return int - Number of attempts remaining
      */
-    public static function getRemainingAttempts(string $identifier): int
+    public static function getRemainingAttempts(string $username): int
     {
-        $pdo = db::pdo();
-
-        $stmt = $pdo->prepare(
-            'SELECT COUNT(*) AS attempts_count
-            FROM login_attempts
-            WHERE username = ?
-            AND attempt_time > DATE_SUB(NOW(), INTERVAL ? MINUTE)'
-        );
-        $stmt->execute([$identifier, self::LOCKOUT_DURATION_MINUTES]);
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        $attemptCount = $result['attempts_count'] ?? 0;
-        return max(0, self::MAX_LOGIN_ATTEMPTS - $attemptCount);
+        $attemptCount = self::getRecentAttemptCount($username);
+        $remaining = self::MAX_LOGIN_ATTEMPTS - $attemptCount;
+        return max(0, $remaining);
     }
 }
