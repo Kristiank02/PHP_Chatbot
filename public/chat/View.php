@@ -79,7 +79,7 @@ $adminDashboardUrl = UrlHelper::publicPath('admin/dashboard.php');
         <div class="chat__user-menu">
           <button type="button" class="chat__user" aria-haspopup="true" aria-label="<?= htmlspecialchars($profileLabel, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
             <span aria-hidden="true">👤</span>
-            <span class="chat__user-name"><?= htmlspecialchars($currentUser['username'] ?? $currentUser['email'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></span>
+            <span class="chat__user-name"><?= htmlspecialchars(ucfirst($currentUser['username'] ?? $currentUser['email']), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></span>
           </button>
           <div class="chat__user-dropdown">
               <a href="<?= htmlspecialchars(UrlHelper::publicPath('user/Profile.php'), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">👤 Profile</a>

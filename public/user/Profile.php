@@ -77,7 +77,7 @@ $logoutUrl = UrlHelper::publicPath('auth/Logout.php');
 
         <div class="user-info">
             <h2>User Information</h2>
-            <p><strong>Username:</strong> <?= htmlspecialchars($currentUser['username'] ?? $currentUser['email'], ENT_QUOTES, 'UTF-8') ?></p>
+            <p><strong>Username:</strong> <?= htmlspecialchars(ucfirst($currentUser['username'] ?? $currentUser['email']), ENT_QUOTES, 'UTF-8') ?></p>
             <p><strong>Email:</strong> <?= htmlspecialchars($currentUser['email'], ENT_QUOTES, 'UTF-8') ?></p>
             <p><strong>Role:</strong> <?= htmlspecialchars($currentUser['role'], ENT_QUOTES, 'UTF-8') ?></p>
             <p><strong>Member since:</strong> <?= htmlspecialchars(date('M d, Y', strtotime($currentUser['created_at'])), ENT_QUOTES, 'UTF-8') ?></p>
