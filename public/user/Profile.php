@@ -5,9 +5,6 @@ require_once __DIR__ . '/../src/auth.php';
 require_once __DIR__ . '/../src/db.php';
 require_once __DIR__ . '/../src/UrlHelper.php';
 
-//========================================
-// MODUL 8.5 - Protected pages
-//========================================
 $userId = auth::requireLogin();
 $currentUser = auth::getCurrentUser();
 $pdo = db::pdo();
