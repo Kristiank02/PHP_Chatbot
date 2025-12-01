@@ -23,7 +23,7 @@ if (isset($_SESSION['logout_message'])) {
 // Checks requests and runs if POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   try {
-    $identifier = trim($_POST['email'] ?? ''); // Can be email or username
+    $identifier = strtolower(trim($_POST['email']) ?? ''); // Can be email or username
     $password = $_POST['password'] ?? '';
     $oldEmail = $identifier;
 
