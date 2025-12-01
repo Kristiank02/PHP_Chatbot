@@ -2,11 +2,11 @@
 declare(strict_types=1);
 
 // Load required files
-require_once __DIR__ . '/../../src/auth.php';
-require_once __DIR__ . '/../../src/conversations.php';
-require_once __DIR__ . '/../../src/messages.php';
-require_once __DIR__ . '/../../src/openai.php';
-require_once __DIR__ . '/../../src/config.php';
+require_once __DIR__ . '/../../src/Auth.php';
+require_once __DIR__ . '/../../src/Conversations.php';
+require_once __DIR__ . '/../../src/Messages.php';
+require_once __DIR__ . '/../../src/Openai.php';
+require_once __DIR__ . '/../../src/Config.php';
 
 // Only accept POST requests
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -76,7 +76,7 @@ try {
 
 } catch (Throwable $exception) {
     // Log error to XAMPP
-    error_log("Error in Send.php: " . $exception->getMesssage() . " in " . $exception->getFile() . ":" . $exception->getLine());
+    error_log("Error in Send.php: " . $exception->getMessage() . " in " . $exception->getFile() . ":" . $exception->getLine());
     // Send error response if anything goes wrong
     respond($conversationId, false, 'An error occurred while processing your message. Please try again.', null, $responseAsJson);
 }

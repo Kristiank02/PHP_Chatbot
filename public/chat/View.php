@@ -2,10 +2,10 @@
 declare(strict_types=1);
 
 // Load dependencies
-require_once __DIR__ . '/../../src/auth.php';
-require_once __DIR__ . '/../../src/db.php';
-require_once __DIR__ . '/../../src/conversations.php';
-require_once __DIR__ . '/../../src/messages.php';
+require_once __DIR__ . '/../../src/Auth.php';
+require_once __DIR__ . '/../../src/Db.php';
+require_once __DIR__ . '/../../src/Conversations.php';
+require_once __DIR__ . '/../../src/Messages.php';
 require_once __DIR__ . '/../../src/UrlHelper.php';
 
 $userId = auth::requireLogin();
