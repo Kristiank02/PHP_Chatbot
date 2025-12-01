@@ -37,7 +37,8 @@ final class db
                 self::$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             } catch (PDOException $e) {
                 // Throws an exception with a descriptive message if the connection fails
-                throw new RuntimeException('Feil ved tilkobling til databasen: ' . $e->getMessage());
+                error_log('Database connection failed: ' . $e->getMessage());
+                throw new RuntimeException('Database connection failed. Please try again later.');
             }
         }
 

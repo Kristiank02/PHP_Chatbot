@@ -151,14 +151,16 @@ final class OpenAIClient
         // Handle CURL errors
         if ($responseText == false || $errorNumber !== 0) {
             $error = $errorMessage !== '' ? $errorMessage : 'unknown error';
-            throw new RuntimeException('OpenAI request failed: ' . $error);
+            error_log('OpenAI CURL error: ' . $error);
+            throw new RuntimeException('Unable to connect to AI service. Please try again later.');
         }
 
         // Convert the JSON response text back to PHP array
         $responseArray = json_decode($responseText, true);
 
         if (!is_array($responseArray)) {
-            throw new RuntimeException('Unable to decode response from OpenAI: ' . $responseText);
+            error_log('Unable to decode OpenAI response: ' . $responseText);
+            throw new RuntimeException('Received invalid response from AI service.');
         }
 
         // Check if OpenAI returned an error
@@ -172,7 +174,8 @@ final class OpenAIClient
                 }
             }
 
-            throw new RuntimeException("OpenAI API error ({$httpStatus}): {$errorMsg}");
+            error_log("OpenAI API error ({$httpStatus}): {$errorMsg}");
+            throw new RuntimeException('AI service returned an error. Please try again later.');
         }
 
         return $responseArray;
@@ -188,17 +191,20 @@ final class OpenAIClient
     {
         // Check if the response has the expected structure
         if (!isset($response['choices']) || !is_array($response['choices'])) {
-            throw new RuntimeException('Invalid response from OpenAI: missing choices');
+            error_log('OpenAI response missing choices');
+            throw new RuntimeException('Received invalid response from AI service.');
         }
 
         if (empty($response['choices'])) {
-            throw new RuntimeException('Invalid response from OpenAI: empty choices array');
+            error_log('OpenAI response has empty choices array');
+            throw new RuntimeException('Received invalid response from AI service.');
         }
 
         $firstChoice = $response['choices'][0];
 
         if (!isset($firstChoice['message']['content'])) {
-            throw new RuntimeException('Invalid response from OpenAI: missing message content');
+            error_log('OpenAI response missing message content');
+            throw new RuntimeException('Received invalid response from AI service.');
         }
 
         return (string)$firstChoice['message']['content'];
