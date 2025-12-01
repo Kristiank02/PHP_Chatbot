@@ -1,78 +1,95 @@
 # Weightlifting Assistant
 
-An authenticated PHP chat interface tailored for strength-training guidance. Logged-in users can spin up new conversations, send messages that are forwarded to OpenAI, and browse their full history. The UI is optimized for a desktop chat workflow with a responsive layout and an inline composer that streams messages without page reloads.
+A web-based chat application for strength training guidance, built with PHP and MySQL. Users can create accounts, manage multiple conversations, and receive personalized weightlifting advice through an AI-powered assistant.
 
-## Directory layout
+## Features
+
+- User authentication (registration and login)
+- Multi-conversation support
+- Real-time message sending via AJAX
+- Conversation history tracking
+- Role-based access control (user/admin)
+- User preference management
+- Admin dashboard for user management
+- Login attempt tracking and account lockout protection
+
+## Technology Stack
+
+- PHP 8.1+
+- MySQL 8
+- Vanilla JavaScript
+- OpenAI API integration
+- PDO for database access
+
+## Project Structure
 
 ```
 PHP_Chatbot/
 ├─ public/
-│  ├─ index.html              # Landing page with call-to-action buttons
-│  ├─ auth/                   # Login and registration forms
-│  ├─ chat/                   # Chat views, sender endpoint, history
-│  └─ assets/                 # Compiled CSS bundle + shared styles
-├─ src/
-│  ├─ auth.php                # Registration + session guard helpers
-│  ├─ conversations.php       # Conversation CRUD helpers
-│  ├─ messages.php            # Message persistence helpers
-│  ├─ openai.php              # Lightweight OpenAI API client
-│  ├─ env.php                 # Minimal .env loader
-│  └─ db.php                  # PDO connection wrapper
-└─ .env                       # Environment variables (not committed)
+│  ├─ index.html           # Landing page
+│  ├─ auth/                # Login, registration, and logout
+│  ├─ chat/                # Chat interface and message handling
+│  ├─ user/                # User profile management
+│  ├─ admin/               # Admin dashboard
+│  └─ assets/              # CSS and JavaScript files
+└─ src/
+   ├─ auth.php             # Authentication and authorization
+   ├─ conversations.php    # Conversation management
+   ├─ messages.php         # Message persistence
+   ├─ openai.php           # OpenAI API client
+   ├─ env.php              # Environment configuration loader
+   ├─ db.php               # Database connection
+   └─ LoginAttemptTracker.php  # Security for login attempts
 ```
 
-## Prerequisites
+## Requirements
 
-- PHP 8.1+ with PDO MySQL and cURL enabled
-- MySQL 8 (database name defaults to `chatbot` in `src/db.php`)
-- Composer is not required; everything is vanilla PHP
-- An OpenAI API key stored in `.env`
+- PHP 8.1 or higher
+- MySQL 8.0 or higher
+- PHP extensions: PDO, pdo_mysql, curl
+- Web server (Apache recommended)
+- OpenAI API account
 
-## Environment variables
+## Installation
 
-Create a `.env` file in the project root:
+1. Clone or download this repository to your web server directory
 
-```
-OPENAI_API_KEY=sk-your-key-here
-```
+2. Configure your database connection in `src/db.php`
 
-The `env` helper loads this file once per request and exposes `env::get('OPENAI_API_KEY')`.
+3. Create a `.env` file in the project root with your OpenAI API key:
+   ```
+   OPENAI_API_KEY=your_key_here
+   ```
 
-## Database schema
+4. Import the database schema (create tables for users, conversations, messages, preferences, and login_attempts)
 
-The helper classes auto-create tables if they are missing:
+5. Configure your web server to serve from the `public/` directory
 
-```sql
-CREATE TABLE conversations (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  user_id INT NOT NULL,
-  title VARCHAR(255) DEFAULT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+6. Access the application through your browser and create an account
 
-CREATE TABLE messages (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  conversation_id INT NOT NULL,
-  role ENUM('system','user','assistant') NOT NULL,
-  content TEXT NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-```
+## Usage
 
-Add a simple `users` table with `id`, `email`, and `password_hash` columns; the login and registration forms rely on those fields.
+After installation, navigate to the application in your browser. You can:
 
-## Running locally
+- Register a new account at `/public/auth/register.php`
+- Log in at `/public/auth/login.php`
+- Start new conversations from the main interface
+- View and manage your conversation history
+- Update your profile and preferences
+- Access admin features (if you have admin role)
 
-1. Start Apache/MySQL via XAMPP (or any PHP-compatible stack).
-2. Import the schema above and update `src/db.php` if you use custom credentials.
-3. Copy `.env.example` to `.env` and insert your OpenAI key.
-4. Visit `public/auth/register.php` to create an account.
-5. Start a new chat via `public/index.html` → “Start New Chat”.
+## Security Features
 
-## Development notes
+- Password hashing with bcrypt
+- Prepared statements for SQL queries
+- XSS protection with output escaping
+- Login attempt tracking and temporary account lockout
+- Session-based authentication
+- Role-based access control
 
-- All chat endpoints require authentication; unauthenticated users are redirected to the login page.
-- Messages are submitted via `fetch` (`public/js/main.js`) so the chat window never reloads.
-- Error messages bubble up to the UI and are returned as JSON when the request is made with `Accept: application/json`.
+## Notes
 
-Feel free to adapt the styling or copy the OpenAI client into another project—everything is plain PHP with no framework dependencies.
+- All chat interactions require authentication
+- Messages are sent asynchronously without page reloads
+- The application uses vanilla PHP with no framework dependencies
+- Error responses are returned as JSON for AJAX requests
