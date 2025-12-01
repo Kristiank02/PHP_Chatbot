@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['uid'] = $userId;
 
         // Start a first conversation and redirect to it
-        $redirectUrl = auth::DefaultConversationUrl($userId);
+        $redirectUrl = auth::defaultConversationUrl($userId);
         header('Location: ' . $redirectUrl);
         exit();
     } catch (Throwable $exception) {            

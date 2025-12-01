@@ -135,7 +135,7 @@ function respond(int $conversationId, bool $success, ?string $error = null, ?str
     }
 
     // If the request wants a regular redirect from a form submission
-    $redirectUrl = auth::DefaultConversationUrl($userId); 
+    $redirectUrl = auth::defaultConversationUrl($userId); 
 
     // If there was an error, add it to the URL so it can be displayed
     if (!$success && $error !== null) {
