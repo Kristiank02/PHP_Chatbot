@@ -59,7 +59,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
       <?php endif; ?>
 
-      <!-- Modul 7.2 - html skjema -->
       <form method="post" action="" class="auth-form">
         <label>
           Email
