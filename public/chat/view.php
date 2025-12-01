@@ -115,8 +115,6 @@ $adminDashboardUrl = UrlHelper::publicPath('admin/dashboard.php');
         <input type="hidden" name="conversation_id" value="<?= $conversationId ?>">
         <label for="input" class="sr-only">Message</label>
         <textarea id="input" class="composer__input" name="message" placeholder="Ask about lifts, form, programming..." rows="2" required></textarea>
-        <div class="composer__actions">
-          <button id="clear" type="button" class="btn" title="Clear conversation">Clear</button>
           <button id="send" type="submit" class="btn btn--primary" title="Send message">
             ➤ <span>Send</span>
           </button>
