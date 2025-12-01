@@ -108,8 +108,8 @@ $currentUser = auth::getCurrentUser();
             <h1>Admin Dashboard</h1>
             <div class="admin-nav">
                 <a href="/PHP_Chatbot/public/chat/new.php">Back to Chat</a>
-                <a href="/PHP_Chatbot/public/profile.php">My Profile</a>
-                <a href="/PHP_Chatbot/public/logout.php">Logout</a>
+                <a href="/PHP_Chatbot/public/user/Profile.php">My Profile</a>
+                <a href="/PHP_Chatbot/public/auth/Logout.php">Logout</a>
             </div>
         </div>
 

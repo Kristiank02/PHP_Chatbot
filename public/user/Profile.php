@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-require_once __DIR__ . '/../src/auth.php';
-require_once __DIR__ . '/../src/db.php';
-require_once __DIR__ . '/../src/UrlHelper.php';
+require_once __DIR__ . '/../../src/auth.php';
+require_once __DIR__ . '/../../src/db.php';
+require_once __DIR__ . '/../../src/UrlHelper.php';
 
 $userId = auth::requireLogin();
 $currentUser = auth::getCurrentUser();
@@ -51,7 +51,7 @@ $userPreferenceIds = array_column($stmt->fetchAll(PDO::FETCH_ASSOC), 'preference
 // Check if user is admin
 $isAdmin = $currentUser && $currentUser['role'] === 'admin';
 $adminDashboardUrl = UrlHelper::publicPath('admin/dashboard.php');
-$logoutUrl = UrlHelper::publicPath('logout.php');
+$logoutUrl = UrlHelper::publicPath('auth/Logout.php');
 ?>
 <!DOCTYPE html>
 <html lang="en" class="page-scrollable">
@@ -59,8 +59,8 @@ $logoutUrl = UrlHelper::publicPath('logout.php');
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Profile</title>
-    <link rel="stylesheet" href="assets/css/main-compiled.css?v=<?= time() ?>">
-    <link rel="stylesheet" href="assets/css/profile.css?v=<?= time() ?>">
+    <link rel="stylesheet" href="../assets/css/main-compiled.css?v=<?= time() ?>">
+    <link rel="stylesheet" href="../assets/css/profile.css?v=<?= time() ?>">
 </head>
 <body class="page-scrollable">
     <div class="profile-container">

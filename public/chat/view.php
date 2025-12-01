@@ -8,9 +8,6 @@ require_once __DIR__ . '/../../src/conversations.php';
 require_once __DIR__ . '/../../src/messages.php';
 require_once __DIR__ . '/../../src/UrlHelper.php';
 
-//========================================
-// MODUL 8.5 - Protected pages
-//========================================
 $userId = auth::requireLogin();
 $conversationId = (int)($_GET['id'] ?? 0);
 
@@ -23,7 +20,7 @@ if (!$conversation) {
 $messages = Messages::listForConversation($conversationId);
 $conversationList = $userId ? Conversations::listForUser($userId) : [];
 $profileLabel = 'Account menu';
-$logoutUrl = UrlHelper::publicPath('logout.php');
+$logoutUrl = UrlHelper::publicPath('auth/Logout.php');
 
 // Get current user to check if admin
 $currentUser = auth::getCurrentUser();
@@ -82,13 +79,10 @@ $adminDashboardUrl = UrlHelper::publicPath('admin/dashboard.php');
         <div class="chat__user-menu">
           <button type="button" class="chat__user" aria-haspopup="true" aria-label="<?= htmlspecialchars($profileLabel, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
             <span aria-hidden="true">👤</span>
-            <!--========================================
-            // MODUL 8.7 - Show name
-            //========================================-->
             <span class="chat__user-name"><?= htmlspecialchars($currentUser['username'] ?? $currentUser['email'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></span>
           </button>
           <div class="chat__user-dropdown">
-              <a href="<?= htmlspecialchars(UrlHelper::publicPath('profile.php'), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">👤 Profile</a>
+              <a href="<?= htmlspecialchars(UrlHelper::publicPath('user/Profile.php'), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">👤 Profile</a>
               <?php if ($isAdmin): ?>
               <a href="<?= htmlspecialchars($adminDashboardUrl, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">🔐 Admin Dashboard</a>
               <?php endif; ?>
