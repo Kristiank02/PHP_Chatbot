@@ -93,14 +93,14 @@ final class OpenAIClient
         // Send request to OpenAI
         $response = $this->request('/chat/completions', $payload);
 
-        // Extract reply from AI's respnse
+        // Extract reply from AI's response
         $aiReply = $this->extractReply($response);
 
         return trim($aiReply);
     }
 
     /**
-     * Extract the AI's respnse from OpenAI's respnse
+     * Extract the AI's response from OpenAI's response
      * 
      * @param array $response - The full response from OpenAI
      * @return string - Just the text reply
