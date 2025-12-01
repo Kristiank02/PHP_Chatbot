@@ -56,9 +56,9 @@ try {
     Conversations::updateTitle($conversationId, $titlePreview);
 
     // Get conversation history for AI
-    // Only send the past 12 messages to save money and tokens
     $messagesForAI = Messages::historyForAI($conversationId, 12);
 
+    // Ensure each OpenAI call starts with the system instructions
     array_unshift($messagesForAI, [
         'role' => 'system',
         'content' => AppConfig::SYSTEM_PROMPT,
