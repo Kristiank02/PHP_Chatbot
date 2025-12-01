@@ -165,7 +165,7 @@
 
 .chat__user-dropdown {
   position: absolute;
-  top: 110%;
+  top: 100%;
   right: 0;
   background: var(--bg-tertiary);
   border: 1px solid var(--border-color);
