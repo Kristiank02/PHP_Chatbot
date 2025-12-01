@@ -96,7 +96,10 @@ final class Conversations {
         // Database connection
         $pdo = db::pdo();
 
-        // Joins conversations table with messages table and displays relevant data
+        // Complex JOIN to get conversation data with message statistics
+        // Subquery calculates message_count and last_message_at for each conversation
+        // COALESCE handles conversations with no messages (returns 0 instead of NULL)
+        // LEFT JOIN ensures we get all conversations, even those without messages
         $sql = 'SELECT c.id, c.title, c.created_at,
                 COALESCE(stats.message_count, 0)
                 AS message_count, stats.last_message_at
@@ -114,10 +117,10 @@ final class Conversations {
         $stmt = $pdo->prepare($sql);
         $stmt->execute([$userId]);
 
-        // Get all conversations as an array
+        // Fetch all conversations as associative array
         $conversations = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // Get all conversations as an array
+        // Return empty array if no conversations found
         if ($conversations === false) {
             return [];
         }

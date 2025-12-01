@@ -14,7 +14,7 @@ class Validator
     }
 
     /**
-     * Checks if password towards certain criteria
+     * Checks password towards certain criteria
      * 
      * @param string $password
      * @return array $errors - List invalid password reasons

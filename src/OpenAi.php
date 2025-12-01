@@ -136,37 +136,38 @@ final class OpenAIClient
             'Authorization: Bearer ' . $this->apiKey,   // API key for authentication
         ]);
 
-        // Execute request
+        // Execute the CURL request and get response
         $responseText = curl_exec($curl);
 
-        // Check if there was an error
+        // Capture any CURL-level errors (connection failures, timeouts, etc.)
         $errorNumber = curl_errno($curl);
         $errorMessage = curl_error($curl);
 
-        // Get the HTTP status code
+        // Get HTTP status code (200 = success, 400+ = error)
         $httpStatus = curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
 
-        // Close the CURL connection
+        // Always close CURL to free up resources
         curl_close($curl);
 
-        // Handle CURL errors
+        // Check if CURL itself failed (network issues, DNS problems, etc.)
         if ($responseText == false || $errorNumber !== 0) {
             $error = $errorMessage !== '' ? $errorMessage : 'unknown error';
             error_log('OpenAI CURL error: ' . $error);
             throw new RuntimeException('Unable to connect to AI service. Please try again later.');
         }
 
-        // Convert the JSON response text back to PHP array
+        // Parse JSON response into PHP array (true = associative array)
         $responseArray = json_decode($responseText, true);
 
+        // Verify we got valid JSON back
         if (!is_array($responseArray)) {
             error_log('Unable to decode OpenAI response: ' . $responseText);
             throw new RuntimeException('Received invalid response from AI service.');
         }
 
-        // Check if OpenAI returned an error
+        // Check if OpenAI API returned an HTTP error (400, 401, 500, etc.)
         if ($httpStatus >= 400) {
-            // Try to get the error message from the response
+            // Try to extract the specific error message from OpenAI's response
             $errorMsg = 'unkown error';
 
             if (isset($responseArray['error']) && is_array($responseArray['error'])) {

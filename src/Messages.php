@@ -112,27 +112,30 @@ final class Messages
 
         $stmt->execute();
 
-        // Get all messages
+        // Fetch all messages from database
         $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         if ($messages === false) {
             $messages = [];
         }
 
-        // Reverse the order of messages (needed by AI)
+        // Reverse order: SQL gives newest-first (DESC), but AI needs oldest-first
+        // This ensures conversation flows chronologically for the AI
         $messagesInCorrectOrder = array_reverse($messages);
 
+        // Format messages into OpenAI's required structure
         $formattedForAI = [];
 
         foreach ($messagesInCorrectOrder as $message) {
-            // Check if role is valid
+            // Validate role is one of: 'user', 'assistant', or 'system'
             $role = $message['role'];
             $isValid = in_array($role, self::ALLOWED_ROLES, true);
 
             if (!$isValid) {
-                $role = 'user'; // Default to user if invalid
+                $role = 'user'; // Fallback to 'user' if database has invalid role
             }
 
+            // Build array in format OpenAI expects: ['role' => '...', 'content' => '...']
             $formattedForAI[] = [
                 'role' => $role,
                 'content' => $message['content'],

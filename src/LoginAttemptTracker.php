@@ -12,7 +12,10 @@ final class LoginAttemptTracker
     private const LOCKOUT_DURATION_MINUTES = 60;
 
     /**
-    * Get count of recent failed attempts
+    * Get count of recent failed attempts within the lockout window
+    *
+    * Uses DATE_SUB to only count attempts from the last X minutes
+    * Example: If lockout is 60 minutes, only counts attempts from last hour
     */
     private static function getRecentAttemptCount(string $username): int
     {
