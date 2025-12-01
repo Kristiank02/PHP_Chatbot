@@ -70,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $_SESSION['role'] = $user['role'];
 
     // Redirect  to previously requested page or the most recent conversation
-    $redirect = $_SESSION['redirect_after_login'] ?? auth::defaultConversationRedirect((int)$user['id']);
+    $redirect = $_SESSION['redirect_after_login'] ?? auth::getDefaultConversationRedirect((int)$user['id']);
     unset($_SESSION['redirect_after_login']);
 
     header('Location: ' . $redirect);

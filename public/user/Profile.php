@@ -49,7 +49,7 @@ $stmt->execute([$userId]);
 $userPreferenceIds = array_column($stmt->fetchAll(PDO::FETCH_ASSOC), 'preference_id');
 
 // Check if user is admin
-$isAdmin = $currentUser && $currentUser['role'] === 'admin';
+$isAdmin = auth::isAdmin();
 $adminDashboardUrl = UrlHelper::publicPath('admin/dashboard.php');
 $logoutUrl = UrlHelper::publicPath('auth/Logout.php');
 ?>

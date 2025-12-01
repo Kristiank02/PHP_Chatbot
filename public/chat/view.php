@@ -24,7 +24,7 @@ $logoutUrl = UrlHelper::publicPath('auth/Logout.php');
 
 // Get current user to check if admin
 $currentUser = auth::getCurrentUser();
-$isAdmin = $currentUser && $currentUser['role'] === 'admin';
+$isAdmin = auth::isAdmin();
 $adminDashboardUrl = UrlHelper::publicPath('admin/dashboard.php');
 ?>
 

@@ -159,8 +159,8 @@ final class auth
 
         // Check if user has required role
         if (!in_array($user['role'], $allowedRoles, true)) {
-            http_response_code(403);
-            die('Access denied: You do not have permission to access this page');
+            header('Location: /PHP_Chatbot/public/index.html');
+            exit;
         }
     }
 
@@ -186,11 +186,11 @@ final class auth
 
     /**
      * Returns most recent conversation on login
-     * 
-     * @param int $userId 
+     *
+     * @param int $userId
      * @return string - Conversation path (most recent)
      */
-    function defaultConversationRedirect(int $userId): string
+    public static function getDefaultConversationRedirect(int $userId): string
     {
         // Uses latestIdForUser from Conversations class to determine most recent conversation id
         $conversationId = Conversations::latestIdForUser($userId);
@@ -201,5 +201,14 @@ final class auth
 
         // Returns conversation path
         return '/PHP_Chatbot/public/chat/view.php?id=' . $conversationId;
+    }
+
+    /**
+     * Check if current user is admin
+     * Uses session data instead of database query
+     */
+    public static function isAdmin(): bool
+    {
+        return isset($_SESSION['role']) && $_SESSION['role'] === 'admin';
     }
 }
