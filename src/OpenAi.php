@@ -36,11 +36,7 @@ final class OpenAIClient
         if ($this->apiKey === '') {
         error_log('OpenAI API key missing from .env file');
         throw new RuntimeException('AI service is not configured');
-}
-
-$this->model = $model;
-$this->baseUrl = rtrim($baseUrl, '/');
-
+        }
         $this->model = $model;
         $this->baseUrl = rtrim($baseUrl, '/');
     }
