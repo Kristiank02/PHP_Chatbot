@@ -144,23 +144,8 @@ final class auth
         //Ensure user is logged in
         $userId = self::requireLogin();
 
-        // Get user data including role
-        $pdo = db::pdo();
-        $stmt = $pdo->prepare('SELECT role FROM users WHERE id = ?');
-        $stmt->execute([$userId]);
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if (!$user) {
-            throw new RuntimeException('User not found');
-        }
-
-        // Convert single role into array
-        if (!is_array($allowedRoles)) {
-            $allowedRoles = [$allowedRoles];
-        }
-
-        // Check if user has required role
-        if (!in_array($user['role'], $allowedRoles, true)) {
+        // Check isAdmin function to see if user is admin
+        if (!self::isAdmin()) {
             header('Location: /PHP_Chatbot/public/index.html');
             exit;
         }
